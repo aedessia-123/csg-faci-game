@@ -194,17 +194,17 @@ function computeResults(answers) {
    only once every pillar clears the pass line.
    ============================================================ */
 
-function Gate({ avg, size = 340, compact = false }) {
+function Gate({ avg, size = 340 }) {
   const width = 400;
-  const height = compact ? 170 : 260;
-  const groundY = compact ? 140 : 220;
-  const maxH = compact ? 90 : 140;
-  const pillarW = compact ? 34 : 46;
-  const xs = compact ? [56, 154, 246, 344] : [70, 160, 250, 340];
+  const height = 260;
+  const groundY = 220;
+  const maxH = 140;
+  const pillarW = 46;
+  const xs = [70, 160, 250, 340];
   const passLineFrac = 0.75; // score 3 out of 4
 
   const allPass = COMP_ORDER.every((c) => avg[c] !== null && avg[c] >= 3);
-  const lintelY = groundY - maxH - (compact ? 14 : 24);
+  const lintelY = groundY - maxH - 24;
 
   return (
     <svg viewBox={`0 0 ${width} ${height}`} width={size} height={(size * height) / width} className="gate">
@@ -213,10 +213,10 @@ function Gate({ avg, size = 340, compact = false }) {
         x={xs[0] - pillarW / 2 - 6}
         y={lintelY}
         width={xs[3] - xs[0] + pillarW + 12}
-        height={compact ? 10 : 14}
+        height={14}
         rx="3"
         fill={allPass ? "var(--moss)" : "var(--surface-2)"}
-        opacity={allPass ? 1 : 0.7}
+        opacity={allPass ? 1 : 0.85}
         style={{ transition: "fill 0.5s ease" }}
       />
       {allPass && (
@@ -224,7 +224,7 @@ function Gate({ avg, size = 340, compact = false }) {
           x={xs[0] - pillarW / 2 - 6}
           y={lintelY}
           width={xs[3] - xs[0] + pillarW + 12}
-          height={compact ? 10 : 14}
+          height={14}
           rx="3"
           fill="none"
           stroke="var(--paper)"
@@ -260,7 +260,7 @@ function Gate({ avg, size = 340, compact = false }) {
               width={pillarW}
               height={maxH}
               fill="var(--surface-2)"
-              opacity="0.5"
+              opacity="0.9"
               rx="4"
             />
             <rect
@@ -273,16 +273,14 @@ function Gate({ avg, size = 340, compact = false }) {
               rx="4"
               style={{ transition: "height 0.5s ease, y 0.5s ease" }}
             />
-            {!compact && (
-              <text
-                x={xs[i]}
-                y={groundY + 20}
-                textAnchor="middle"
-                className="gate-label"
-              >
-                {COMPETENCIES[c].icon}
-              </text>
-            )}
+            <text
+              x={xs[i]}
+              y={groundY + 20}
+              textAnchor="middle"
+              className="gate-label"
+            >
+              {COMPETENCIES[c].icon}
+            </text>
           </g>
         );
       })}
@@ -294,16 +292,63 @@ function Gate({ avg, size = 340, compact = false }) {
    UI PIECES
    ============================================================ */
 
-function ProgressBar({ current, total }) {
+function polarToCartesian(cx, cy, r, angleDeg) {
+  const rad = ((angleDeg - 90) * Math.PI) / 180;
+  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+}
+
+function describeArc(cx, cy, r, startAngle, endAngle) {
+  const start = polarToCartesian(cx, cy, r, startAngle);
+  const end = polarToCartesian(cx, cy, r, endAngle);
+  const largeArcFlag = endAngle - startAngle <= 180 ? 0 : 1;
+  return `M ${start.x} ${start.y} A ${r} ${r} 0 ${largeArcFlag} 1 ${end.x} ${end.y}`;
+}
+
+const GAUGE_START = -120;
+const GAUGE_END = 120;
+
+function Gauge({ id, avg, size = 76 }) {
+  const c = COMPETENCIES[id];
+  const filled = avg !== null;
+  const pct = filled ? Math.max(0, Math.min(1, avg / 4)) : 0;
+  const valueAngle = GAUGE_START + pct * (GAUGE_END - GAUGE_START);
+  const passAngle = GAUGE_START + 0.75 * (GAUGE_END - GAUGE_START);
+  const pass = filled && avg >= 3;
+  const color = !filled ? "var(--dash-muted)" : pass ? "var(--moss)" : "var(--ember)";
+  const r = size / 2 - 10;
+  const cx = size / 2;
+  const cy = size / 2 + 6;
+  const needleTip = polarToCartesian(cx, cy, r - 6, filled ? valueAngle : GAUGE_START);
+  const tickOuter = polarToCartesian(cx, cy, r + 6, passAngle);
+  const tickInner = polarToCartesian(cx, cy, r - 6, passAngle);
+
   return (
-    <div className="progress-track">
-      <div className="progress-fill" style={{ width: `${(current / total) * 100}%` }} />
+    <div className="gauge">
+      <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size}>
+        <path d={describeArc(cx, cy, r, GAUGE_START, GAUGE_END)} className="gauge-track" fill="none" />
+        {filled && (
+          <path
+            d={describeArc(cx, cy, r, GAUGE_START, valueAngle)}
+            stroke={color}
+            className="gauge-value"
+            fill="none"
+          />
+        )}
+        <line x1={tickInner.x} y1={tickInner.y} x2={tickOuter.x} y2={tickOuter.y} className="gauge-passtick" />
+        <line x1={cx} y1={cy} x2={needleTip.x} y2={needleTip.y} className="gauge-needle" />
+        <circle cx={cx} cy={cy} r="4" className="gauge-hub" />
+      </svg>
+      <div className="gauge-readout">
+        <span className="gauge-icon">{c.icon}</span>
+        <span className="gauge-value-text">{filled ? avg.toFixed(1) : "–"}</span>
+      </div>
     </div>
   );
 }
 
 function Dashboard({ answers, qIndex, total }) {
   const results = useMemo(() => computeResults(answers), [answers]);
+  const segments = Array.from({ length: total });
   return (
     <div className="dashboard">
       <div className="dashboard-inner">
@@ -314,13 +359,24 @@ function Dashboard({ answers, qIndex, total }) {
               The Facilitator Matrix · Game {LEVEL.gameNumber} of {LEVEL.totalGames} · L{LEVEL.id}
             </span>
           </div>
-          <ProgressBar current={qIndex} total={total} />
-          <span className="q-count">
-            Question {Math.min(qIndex + 1, total)} of {total}
-          </span>
+          <div className="readout-row">
+            <span className="readout-label">Question</span>
+            <span className="readout-value">
+              {String(Math.min(qIndex + 1, total)).padStart(2, "0")}
+              <span className="readout-sep"> / </span>
+              {String(total).padStart(2, "0")}
+            </span>
+          </div>
+          <div className="progress-ticks">
+            {segments.map((_, i) => (
+              <span key={i} className={`tick${i < qIndex ? " tick-filled" : ""}`} />
+            ))}
+          </div>
         </div>
         <div className="dashboard-right">
-          <Gate avg={results.avg} size={130} compact />
+          {COMP_ORDER.map((c) => (
+            <Gauge key={c} id={c} avg={results.avg[c]} />
+          ))}
         </div>
       </div>
     </div>
@@ -434,7 +490,9 @@ function ResultsScreen({ answers, onRestart }) {
     <div className="screen results" ref={summaryRef}>
       <span className="eyebrow">your gate reading · L{LEVEL.id}</span>
       <div className="results-hero">
-        <Gate avg={results.avg} size={260} />
+        <div className="gate-card">
+          <Gate avg={results.avg} size={260} />
+        </div>
         <div className="results-hero-text">
           <span className="results-standing-label">{results.cleared ? "gate cleared" : "gate not yet cleared"}</span>
           <h1 className="results-standing" style={{ color: results.cleared ? "var(--moss)" : "var(--paper)" }}>
@@ -518,15 +576,16 @@ export default function FacilitatorMatrixGameL0() {
         @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
         .app {
-          --ink: #14171B;
-          --surface: #1B1F24;
-          --surface-2: #23282F;
-          --line: #333941;
-          --paper: #F1EDE4;
-          --muted: #8B8F97;
-          --moss: #8A9A7E;
-          --ember: #E8A33D;
-          --rose: #C1666B;
+          --ink: #FFF8EF;
+          --surface: #FFFFFF;
+          --surface-2: #F2E4CE;
+          --line: #E9DAC0;
+          --paper: #2E2A22;
+          --paper-soft: #6B6152;
+          --muted: #9C8F79;
+          --moss: #2E9E63;
+          --ember: #F2A93B;
+          --rose: #E1574F;
 
           background: var(--ink);
           color: var(--paper);
@@ -539,37 +598,75 @@ export default function FacilitatorMatrixGameL0() {
         .app button { font-family: inherit; cursor: pointer; }
 
         .dashboard {
+          --dash-text: #F4EFE6;
+          --dash-muted: #98A2B8;
+          --dash-line: rgba(255,255,255,0.12);
           position: sticky;
           top: 0;
           z-index: 10;
-          background: rgba(20, 23, 27, 0.92);
-          backdrop-filter: blur(10px);
-          border-bottom: 1px solid var(--line);
+          background: linear-gradient(160deg, #1B1F2A 0%, #10131A 100%);
+          border-radius: 0 0 22px 22px;
+          box-shadow: 0 14px 30px rgba(30, 20, 5, 0.18);
         }
         .dashboard-inner {
-          max-width: 780px;
+          max-width: 820px;
           margin: 0 auto;
-          padding: 14px 24px;
+          padding: 22px 28px 24px;
           display: grid;
           grid-template-columns: 1fr auto;
           align-items: center;
-          gap: 20px;
+          gap: 24px;
         }
-        .dashboard-left { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+        .dashboard-left { display: flex; flex-direction: column; gap: 10px; min-width: 0; color: var(--dash-text); }
         .brand { display: flex; align-items: center; gap: 8px; }
-        .brand-mark { color: var(--moss); font-size: 14px; }
+        .brand-mark { color: var(--moss); font-size: 15px; }
         .brand-name {
           font-family: 'IBM Plex Mono', monospace;
-          font-size: 11px;
-          letter-spacing: 0.06em;
+          font-size: 11.5px;
+          letter-spacing: 0.08em;
           text-transform: uppercase;
-          color: var(--muted);
+          color: var(--dash-muted);
         }
-        .progress-track { height: 3px; background: var(--surface-2); border-radius: 2px; overflow: hidden; }
-        .progress-fill { height: 100%; background: var(--moss); transition: width 0.4s ease; }
-        .q-count { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); }
+        .readout-row { display: flex; align-items: baseline; gap: 8px; }
+        .readout-label {
+          font-family: 'IBM Plex Mono', monospace;
+          font-size: 11px;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          color: var(--dash-muted);
+        }
+        .readout-value {
+          font-family: 'IBM Plex Mono', monospace;
+          font-size: 28px;
+          font-weight: 600;
+          color: var(--dash-text);
+          letter-spacing: 0.02em;
+          text-shadow: 0 0 18px rgba(46, 158, 99, 0.35);
+        }
+        .readout-sep { color: var(--dash-muted); font-weight: 400; }
+        .progress-ticks { display: flex; gap: 5px; }
+        .tick { width: 20px; height: 6px; border-radius: 3px; background: var(--dash-line); }
+        .tick-filled { background: var(--moss); box-shadow: 0 0 8px rgba(46, 158, 99, 0.65); }
+
+        .dashboard-right { display: flex; gap: 16px; }
+        .gauge { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .gauge-track { stroke: var(--dash-line); stroke-width: 8; stroke-linecap: round; }
+        .gauge-value { stroke-width: 8; stroke-linecap: round; transition: stroke 0.3s ease; }
+        .gauge-passtick { stroke: var(--dash-muted); stroke-width: 2; }
+        .gauge-needle { stroke: var(--dash-text); stroke-width: 2; stroke-linecap: round; }
+        .gauge-hub { fill: var(--dash-text); }
+        .gauge-readout { display: flex; align-items: center; gap: 5px; font-family: 'IBM Plex Mono', monospace; }
+        .gauge-icon { font-size: 13px; }
+        .gauge-value-text { font-size: 13px; color: var(--dash-text); font-weight: 600; }
 
         .gate-label { font-size: 16px; fill: var(--paper); }
+        .gate-card {
+          background: var(--surface);
+          border: 1px solid var(--line);
+          border-radius: 20px;
+          padding: 20px 24px;
+          box-shadow: 0 10px 26px rgba(60, 45, 20, 0.06);
+        }
 
         .screen { max-width: 680px; margin: 0 auto; padding: 56px 24px 80px; animation: rise 0.5s ease both; }
         @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -586,8 +683,8 @@ export default function FacilitatorMatrixGameL0() {
         .intro { position: relative; padding-top: 72px; }
         .intro-glow {
           position: absolute; top: -80px; left: 50%; transform: translateX(-50%);
-          width: 460px; height: 460px;
-          background: radial-gradient(circle, rgba(138,154,126,0.14) 0%, rgba(138,154,126,0) 70%);
+          width: 520px; height: 520px;
+          background: radial-gradient(circle, rgba(242,169,59,0.22) 0%, rgba(242,169,59,0) 70%);
           pointer-events: none;
         }
         .intro-title {
@@ -598,7 +695,7 @@ export default function FacilitatorMatrixGameL0() {
           margin: 14px 0 10px;
         }
         .intro-tagline { font-family: 'Fraunces', serif; font-style: italic; font-size: 17px; color: var(--moss); margin-bottom: 20px; }
-        .intro-body { font-size: 15.5px; line-height: 1.7; color: #D8D3C8; max-width: 560px; margin-bottom: 32px; }
+        .intro-body { font-size: 15.5px; line-height: 1.7; color: var(--paper-soft); max-width: 560px; margin-bottom: 32px; }
 
         .comp-legend { display: flex; flex-direction: column; gap: 16px; margin-bottom: 32px; }
         .comp-legend-item { display: flex; gap: 12px; align-items: flex-start; }
@@ -617,16 +714,17 @@ export default function FacilitatorMatrixGameL0() {
         }
 
         .btn-primary {
-          background: var(--moss);
-          color: var(--ink);
+          background: linear-gradient(135deg, var(--moss), #249457);
+          color: #FFFFFF;
           border: none;
           padding: 14px 28px;
           border-radius: 6px;
           font-size: 15px;
           font-weight: 600;
-          transition: transform 0.15s ease, background 0.15s ease;
+          box-shadow: 0 6px 16px rgba(46,158,99,0.28);
+          transition: transform 0.15s ease, box-shadow 0.15s ease;
         }
-        .btn-primary:hover { transform: translateY(-1px); background: #9CAD8F; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(46,158,99,0.36); }
         .btn-primary:focus-visible { outline: 2px solid var(--paper); outline-offset: 3px; }
 
         .q-tag {
@@ -637,12 +735,13 @@ export default function FacilitatorMatrixGameL0() {
           color: var(--moss);
         }
         .q-title { font-family: 'Fraunces', serif; font-size: 30px; font-weight: 600; margin: 10px 0 14px; }
-        .q-text { font-size: 15.5px; line-height: 1.65; color: #D8D3C8; margin-bottom: 28px; }
+        .q-text { font-size: 15.5px; line-height: 1.65; color: var(--paper-soft); margin-bottom: 28px; }
         .options { display: flex; flex-direction: column; gap: 10px; }
         .option-card {
           display: flex; align-items: flex-start; gap: 14px;
           background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
           padding: 16px 18px; text-align: left; color: var(--paper);
+          box-shadow: 0 2px 10px rgba(60,45,20,0.04);
           transition: border-color 0.15s ease, background 0.15s ease, transform 0.1s ease;
         }
         .option-card:hover { border-color: var(--moss); background: var(--surface-2); transform: translateX(2px); }
@@ -660,34 +759,37 @@ export default function FacilitatorMatrixGameL0() {
           text-transform: uppercase; color: var(--muted);
         }
         .results-standing { font-family: 'Fraunces', serif; font-size: 40px; font-weight: 600; margin: 6px 0 10px; }
-        .results-tagline { color: #D8D3C8; font-size: 14.5px; line-height: 1.6; max-width: 340px; }
+        .results-tagline { color: var(--paper-soft); font-size: 14.5px; line-height: 1.6; max-width: 340px; }
 
         .level-card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px 22px; margin-bottom: 28px; }
         .comp-row { display: grid; grid-template-columns: 190px 1fr 52px; align-items: center; gap: 12px; margin-bottom: 12px; }
         .comp-row:last-child { margin-bottom: 0; }
-        .comp-label { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #D8D3C8; }
+        .comp-label { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--paper-soft); }
         .comp-track { position: relative; height: 6px; background: var(--surface-2); border-radius: 3px; }
         .comp-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
         .comp-threshold { position: absolute; top: -2px; width: 2px; height: 10px; background: var(--muted); opacity: 0.6; }
         .comp-score { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); text-align: right; }
 
         .redflag-panel {
-          background: rgba(193,102,107,0.08); border: 1px solid rgba(193,102,107,0.35);
+          background: rgba(225,87,79,0.07); border: 1px solid rgba(225,87,79,0.28);
           border-radius: 10px; padding: 18px 20px; margin-bottom: 28px;
         }
         .redflag-title { font-weight: 600; font-size: 13.5px; color: var(--rose); }
         .redflag-panel ul { margin: 10px 0 0; padding-left: 18px; }
-        .redflag-panel li { font-size: 13px; line-height: 1.6; color: #D8D3C8; margin-bottom: 4px; }
+        .redflag-panel li { font-size: 13px; line-height: 1.6; color: var(--paper-soft); margin-bottom: 4px; }
 
         .results-actions { display: flex; gap: 12px; }
         .btn-secondary {
-          background: transparent; color: var(--paper); border: 1px solid var(--line);
+          background: var(--surface); color: var(--paper); border: 1px solid var(--line);
           padding: 13px 22px; border-radius: 6px; font-size: 14px; font-weight: 500;
+          box-shadow: 0 2px 8px rgba(60,45,20,0.04);
         }
         .btn-secondary:hover { border-color: var(--paper); }
 
         @media (max-width: 640px) {
-          .dashboard-right { transform: scale(0.85); transform-origin: right center; }
+          .dashboard-inner { grid-template-columns: 1fr; }
+          .dashboard-right { justify-content: space-between; gap: 10px; }
+          .gauge svg { width: 56px; height: 56px; }
           .intro-title { font-size: 34px; }
           .q-title { font-size: 24px; }
           .results-hero { flex-direction: column; align-items: flex-start; }
