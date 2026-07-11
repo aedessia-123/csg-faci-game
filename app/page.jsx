@@ -57,24 +57,24 @@ const RED_FLAG_LIBRARY = [
 const QUESTIONS = [
   {
     title: "The Runaway Talker",
-    text: "Ten minutes into a small-group discussion, one participant has been talking non-stop, circling the same point. Two others have started checking their phones, and you're now behind on your agenda.",
+    text: "Ten minutes into a small-group discussion, one participant has been talking for a while, circling the same point. A couple of others have gone quiet and started checking their phones. You still have three items left on the agenda.",
     comps: ["execution_discipline", "task_integrity"],
     options: [
-      { text: "Let them keep going so it doesn't feel rude, and try to make up the time later in the session.", scores: [1, 1], redFlag: 1 },
-      { text: "Thank them warmly for the input, name that you'd like to hear from others too, and hand the floor to someone who hasn't spoken yet.", scores: [4, 4] },
-      { text: "Cut them off mid-sentence with no acknowledgment and move straight to the next item.", scores: [2, 1] },
-      { text: "Wait for a natural pause, briefly summarize their point aloud, and open the floor to the rest of the group.", scores: [3, 3] },
+      { text: "Interrupt at the next breath, name that you need to move on, and open the floor to the rest of the group.", scores: [4, 2] },
+      { text: "Let them finish their thought completely, even if it means dropping one of the later agenda items.", scores: [2, 4] },
+      { text: "Wait for a natural pause, reflect back the core of what they said, then redirect to the group.", scores: [3, 3] },
+      { text: "Let the conversation continue as it is, trusting the group to redirect itself if it needs to.", scores: [2, 1], redFlag: 4 },
     ],
   },
   {
     title: "The Silence After the Question",
-    text: "You ask the group an open, slightly vulnerable question meant to deepen the discussion. Nobody answers. The silence stretches past ten seconds and starts to feel heavy.",
+    text: "You ask the group an open question meant to deepen the discussion. Nobody answers. The silence stretches past ten seconds.",
     comps: ["cognitive_ownership", "stability"],
     options: [
-      { text: "Immediately assume the question landed wrong, apologize, and move on to something easier.", scores: [1, 1], redFlag: 4 },
-      { text: "Hold the silence a little longer, then gently rephrase the question and offer a small example of your own to open the door.", scores: [4, 4] },
-      { text: "Call on a specific participant by name to answer first, putting them on the spot.", scores: [2, 2] },
-      { text: "Stay quiet and comfortable with the pause, and only rephrase if the silence keeps stretching.", scores: [3, 3] },
+      { text: "Call on a specific participant by name, so the group has a starting point.", scores: [4, 2] },
+      { text: "Hold the silence and stay visibly calm, waiting without rushing to fix it, even past the point of discomfort.", scores: [2, 4] },
+      { text: "After a brief pause, rephrase the question and offer a short example of your own to open the door.", scores: [3, 3] },
+      { text: "Assume the question was unclear, move past it, and go straight to the next agenda item.", scores: [1, 1], redFlag: 4 },
     ],
   },
   {
@@ -82,10 +82,10 @@ const QUESTIONS = [
     text: "Two participants start disagreeing sharply, their tone rising. The rest of the small group goes quiet and starts watching you.",
     comps: ["execution_discipline", "cognitive_ownership"],
     options: [
-      { text: "End the discussion abruptly and move to the next agenda item without naming what just happened.", scores: [2, 1] },
-      { text: "Name what you're noticing calmly, invite each of them to share their view in turn, and steer the conversation back to the group's shared goal.", scores: [4, 4] },
-      { text: "Pause the session and go find the program lead to handle it.", scores: [1, 1], redFlag: 3 },
-      { text: "Acknowledge the tension briefly, then quickly shift to a lighter topic.", scores: [2, 2] },
+      { text: "End the discussion and move to the next agenda item without addressing what happened.", scores: [4, 2] },
+      { text: "Set the agenda aside and work through the disagreement with them for as long as it takes to reach some resolution.", scores: [2, 4] },
+      { text: "Name what you're noticing, invite each of them to share briefly, then steer back toward the group's shared goal.", scores: [3, 3] },
+      { text: "Pause the session and go find the program lead to weigh in on what to do.", scores: [1, 1], redFlag: 3 },
     ],
   },
   {
@@ -93,21 +93,21 @@ const QUESTIONS = [
     text: "Mid-activity, a participant unexpectedly shares something personal and emotionally heavy that has nothing to do with the session's topic. The room goes still.",
     comps: ["task_integrity", "stability"],
     options: [
-      { text: "Thank them quickly and move straight on to the next activity as planned, without acknowledging what was shared.", scores: [2, 1], redFlag: 5 },
-      { text: "Pause the agenda, acknowledge what they shared with care, check they're okay, then gently bring the group back to the activity.", scores: [4, 4] },
-      { text: "Let the moment take over completely and drop the planned activity for the rest of the session.", scores: [2, 2] },
-      { text: "Briefly acknowledge it with warmth, offer to check in with them after the session, and continue the planned activity.", scores: [3, 3] },
+      { text: "Acknowledge it briefly, note it for a private follow-up after, and continue the planned activity without further pause.", scores: [4, 2] },
+      { text: "Pause the planned activity entirely and let the conversation go wherever it needs to for as long as it takes.", scores: [2, 4] },
+      { text: "Pause briefly to acknowledge what was shared and check on the person, then bring the group back to the activity.", scores: [3, 3] },
+      { text: "Move straight on to the next planned item without pausing on what was shared.", scores: [2, 1], redFlag: 5 },
     ],
   },
   {
     title: "The Slipping Clock",
-    text: "You're 20 minutes from the end of a 90-minute session and still have two activities left. The group is engaged, but there's no way to finish both.",
+    text: "You're 20 minutes from the end of a 90-minute session and still have two activities left. The group is engaged, but there's no way to finish both as planned.",
     comps: ["execution_discipline", "stability"],
     options: [
-      { text: "Keep going as planned and let the session run over, hoping people can stay late.", scores: [1, 1], redFlag: 1 },
-      { text: "Quickly decide which activity matters most for the session's goal, cut or shorten the other, and say so transparently to the group.", scores: [4, 4] },
-      { text: "Rush through both activities superficially so you technically cover everything.", scores: [2, 2] },
-      { text: "Drop the less essential activity, but don't explain the change to the group.", scores: [3, 2] },
+      { text: "Cut the remaining activity and move straight to closing, regardless of where the group is in the moment.", scores: [4, 2] },
+      { text: "Let the current activity run its natural course, even if the session ends up running past its scheduled end time.", scores: [2, 4] },
+      { text: "Decide which activity matters most, shorten or cut the other, and say so transparently to the group.", scores: [3, 3] },
+      { text: "Try to move through both activities as briefly as possible so everything is technically covered.", scores: [2, 1], redFlag: 1 },
     ],
   },
   {
@@ -115,10 +115,10 @@ const QUESTIONS = [
     text: "You give the small group instructions for a paired activity. Partway through, you notice two participants are clearly doing something different from what you intended, but they haven't asked for help.",
     comps: ["cognitive_ownership", "task_integrity"],
     options: [
-      { text: "Wait for them to notice on their own or come ask you, and stay focused on the rest of the room.", scores: [1, 1], redFlag: 0 },
-      { text: "Walk over, quietly check what they understood, and re-explain the activity in a way that fits what's already happened.", scores: [4, 4] },
-      { text: "Stop the whole group and re-explain the instructions from scratch to everyone.", scores: [2, 2] },
-      { text: "Give them a quick correcting nudge in passing, without checking whether it actually landed.", scores: [3, 2] },
+      { text: "Go over and re-explain it to just those two, without interrupting the rest of the room.", scores: [4, 2] },
+      { text: "Stop the whole group and re-explain the instructions from scratch to everyone.", scores: [2, 4] },
+      { text: "Go over, check what they understood, and adjust the activity to fit what's already happened.", scores: [3, 3] },
+      { text: "Note it, but wait to see if they realize and self-correct before the activity ends.", scores: [1, 1], redFlag: 0 },
     ],
   },
   {
@@ -126,10 +126,10 @@ const QUESTIONS = [
     text: "Halfway through a session, the projector cuts out and your slides are gone. The small group is looking at you, waiting.",
     comps: ["execution_discipline", "task_integrity"],
     options: [
-      { text: "Stop the session and wait for the co-facilitator, who's running another room, to come sort it out.", scores: [1, 1], redFlag: 2 },
-      { text: "Keep the session moving from memory using the whiteboard and a verbal recap, and fix the tech in a natural break.", scores: [4, 4] },
-      { text: "Pause everything and spend several minutes trying to fix the projector yourself while the group waits.", scores: [2, 2] },
-      { text: "Skip the slide-dependent parts of the session entirely and move to whatever doesn't need visuals.", scores: [3, 3] },
+      { text: "Skip the slide-dependent parts entirely and move to whatever doesn't need visuals.", scores: [4, 2] },
+      { text: "Pause the session and take as long as it takes to get the projector working again.", scores: [2, 4] },
+      { text: "Keep the session moving from memory using the whiteboard and a verbal recap, then fix the tech in a natural break.", scores: [3, 3] },
+      { text: "Wait for the co-facilitator, who's running another room, to come sort it out.", scores: [1, 1], redFlag: 2 },
     ],
   },
   {
@@ -137,10 +137,10 @@ const QUESTIONS = [
     text: "About an hour in, the small group's energy has visibly dropped — shorter answers, less eye contact, a couple of side conversations. Your plan doesn't call for a break yet.",
     comps: ["cognitive_ownership", "stability"],
     options: [
-      { text: "Notice it but keep pushing through the agenda as planned, hoping it picks back up on its own.", scores: [1, 1], redFlag: 4 },
-      { text: "Name the dip lightly, insert a short energizer or a two-minute stretch break, then return to the plan.", scores: [4, 4] },
-      { text: "Speed up your delivery to get through the remaining content faster.", scores: [2, 2] },
-      { text: "Shorten the next activity on the fly to keep momentum, without naming the energy shift.", scores: [3, 3] },
+      { text: "Stop the current activity and insert an energizer or break right away, adjusting the plan on the spot.", scores: [4, 2] },
+      { text: "Continue exactly as planned, trusting the structure of the session to carry the group through the dip.", scores: [2, 4] },
+      { text: "Name the dip lightly, insert a short energizer, then return to the plan.", scores: [3, 3] },
+      { text: "Speed up delivery to get through the remaining content faster.", scores: [2, 1], redFlag: 1 },
     ],
   },
 ];
@@ -411,9 +411,10 @@ function IntroScreen({ onStart }) {
       </div>
 
       <p className="intro-rule">
-        Pass gate: all four competencies at 3/4 or above. Some options reflect classic red-flag
-        behavior — they won't auto-fail you, but they score low and pull your average down. Clear
-        the gate and the door to L{LEVEL.id + 1} — {LEVEL.nextLevelName} — opens.
+        There's no single right answer here — every option trades a strength for a weakness,
+        so pick the one you'd actually defend, not the one that sounds best. Pass gate: all four
+        competencies at 3/4 or above. Clear it and the door to L{LEVEL.id + 1} — {LEVEL.nextLevelName} — opens.
+        The real value is in comparing notes with the group afterward — argue it out.
       </p>
 
       <button className="btn-primary" onClick={onStart}>
