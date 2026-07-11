@@ -188,6 +188,10 @@ function computeResults(answers) {
   return { avg, redFlagsHit, total, cleared, strongSignal, touched };
 }
 
+function fmtScore(n) {
+  return Number.isInteger(n) ? String(n) : n.toFixed(1);
+}
+
 /* ============================================================
    UI PIECES
    ============================================================ */
@@ -206,7 +210,7 @@ function CompBar({ id, avg }) {
         <div className="comp-bar-fill" style={{ width: `${pct}%`, background: color }} />
         <div className="comp-bar-threshold" />
       </div>
-      <span className="comp-bar-value">{filled ? avg.toFixed(1) : "–"}</span>
+      <span className="comp-bar-value">{filled ? fmtScore(avg) : "–"}</span>
     </div>
   );
 }
@@ -229,7 +233,7 @@ function Dashboard({ answers, qIndex, total }) {
           <div className="dashboard-score-block">
             <span className="dashboard-score-label">Your score</span>
             <span className="dashboard-score-value" style={{ color: scoreColor }}>
-              {results.total.toFixed(1)}
+              {fmtScore(results.total)}
               <span className="dashboard-score-sep"> / </span>
               {LEVEL.threshold}
             </span>
@@ -376,9 +380,9 @@ function ResultsScreen({ answers, onRestart }) {
       results.cleared
         ? `Result: GATE CLEARED — ready for L${LEVEL.id + 1} readiness track`
         : `Result: Not yet cleared`,
-      `Total: ${results.total.toFixed(1)} / ${LEVEL.threshold} needed`,
+      `Total: ${fmtScore(results.total)} / ${LEVEL.threshold} needed`,
       "",
-      ...COMP_ORDER.map((c) => `${COMPETENCIES[c].name}: ${results.avg[c]?.toFixed(1) ?? "—"} / 4`),
+      ...COMP_ORDER.map((c) => `${COMPETENCIES[c].name}: ${results.avg[c] !== null ? fmtScore(results.avg[c]) : "—"} / 4`),
       "",
       results.redFlagsHit.length
         ? `Red flags triggered: ${results.redFlagsHit.map((r) => r.flag).join("; ")}`
@@ -494,14 +498,14 @@ export default function FacilitatorMatrixGameL0() {
 
         .dashboard {
           --dash-text: #F4EFE6;
-          --dash-muted: #98A2B8;
-          --dash-line: rgba(255,255,255,0.12);
+          --dash-muted: #A9BBAA;
+          --dash-line: rgba(244,239,230,0.16);
           position: sticky;
           top: 0;
           z-index: 10;
-          background: linear-gradient(160deg, #1B1F2A 0%, #10131A 100%);
+          background: linear-gradient(160deg, #234433 0%, #17291F 100%);
           border-radius: 0 0 22px 22px;
-          box-shadow: 0 14px 30px rgba(30, 20, 5, 0.18);
+          box-shadow: 0 14px 30px rgba(20, 35, 25, 0.22);
         }
         .dashboard-inner {
           max-width: 820px;
