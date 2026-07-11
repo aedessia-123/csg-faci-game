@@ -440,9 +440,7 @@ function IntroScreen({ onStart }) {
 function QuestionScreen({ q, qIndex, total, onAnswer, animKey, selectedOption }) {
   return (
     <div className="screen question" key={animKey}>
-      <span className="q-tag">
-        scenario {qIndex + 1} · testing {q.comps.map((c) => COMPETENCIES[c].name).join(" + ")}
-      </span>
+      <span className="q-tag">scenario {qIndex + 1}</span>
       <h2 className="q-title">{q.title}</h2>
       <p className="q-text">{q.text}</p>
       <div className="options">
