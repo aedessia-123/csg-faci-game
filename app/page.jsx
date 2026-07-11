@@ -516,11 +516,11 @@ export default function FacilitatorMatrixGameL0() {
           gap: 10px;
         }
         .brand { display: flex; align-items: center; gap: 8px; }
-        .brand-mark { color: var(--moss); font-size: 15px; }
+        .brand-mark { color: var(--moss); font-size: 16px; }
         .brand-name {
           font-family: 'IBM Plex Mono', monospace;
-          font-size: 11.5px;
-          letter-spacing: 0.08em;
+          font-size: 13px;
+          letter-spacing: 0.06em;
           text-transform: uppercase;
           color: var(--dash-muted);
         }
@@ -529,35 +529,35 @@ export default function FacilitatorMatrixGameL0() {
         .dashboard-score-block { display: flex; flex-direction: column; gap: 2px; }
         .dashboard-score-label {
           font-family: 'IBM Plex Mono', monospace;
-          font-size: 10.5px;
+          font-size: 12px;
           letter-spacing: 0.1em;
           text-transform: uppercase;
           color: var(--dash-muted);
         }
         .dashboard-score-value {
           font-family: 'Fraunces', serif;
-          font-size: 32px;
+          font-size: 40px;
           font-weight: 600;
           color: var(--dash-text);
           line-height: 1;
         }
         .dashboard-score-sep { color: var(--dash-muted); font-weight: 400; font-size: 0.6em; }
 
-        .comp-bars { display: grid; grid-template-columns: 1fr 1fr; gap: 7px 24px; }
-        .comp-bar { display: flex; align-items: center; gap: 8px; }
-        .comp-bar-icon { font-size: 13px; width: 15px; text-align: center; flex-shrink: 0; }
-        .comp-bar-name { font-size: 11px; line-height: 1.15; color: var(--dash-muted); width: 100px; flex-shrink: 0; }
+        .comp-bars { display: grid; grid-template-columns: 1fr 1fr; gap: 9px 24px; }
+        .comp-bar { display: flex; align-items: center; gap: 9px; }
+        .comp-bar-icon { font-size: 16px; width: 18px; text-align: center; flex-shrink: 0; }
+        .comp-bar-name { font-size: 13.5px; line-height: 1.2; color: var(--dash-muted); width: 116px; flex-shrink: 0; }
         .comp-bar-track { position: relative; flex: 1; height: 6px; background: var(--dash-line); border-radius: 3px; }
         .comp-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease, background 0.3s ease; }
         .comp-bar-threshold { position: absolute; top: -2px; left: 75%; width: 2px; height: 10px; background: var(--dash-muted); opacity: 0.7; }
         .comp-bar-value {
-          font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: var(--dash-text);
-          width: 22px; text-align: right; flex-shrink: 0;
+          font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: var(--dash-text);
+          width: 26px; text-align: right; flex-shrink: 0;
         }
 
         .dashboard-progress { display: flex; align-items: center; gap: 8px; }
         .dashboard-progress-label {
-          font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--dash-muted); letter-spacing: 0.04em;
+          font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--dash-muted); letter-spacing: 0.04em;
         }
         .progress-ticks { display: flex; gap: 4px; flex: 1; }
         .tick { width: 18px; height: 4px; border-radius: 2px; background: var(--dash-line); }
