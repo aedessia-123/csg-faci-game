@@ -328,6 +328,22 @@ function fmtScore(n) {
   return Number.isInteger(n) ? String(n) : n.toFixed(1);
 }
 
+function getCompetencyBreakdown(answers) {
+  const instances = {};
+  COMP_ORDER.forEach((c) => {
+    instances[c] = [];
+  });
+  answers.forEach((optIdx, qIdx) => {
+    if (optIdx == null) return;
+    const q = QUESTIONS[qIdx];
+    const opt = q.options[optIdx];
+    q.comps.forEach((c, i) => {
+      instances[c].push({ title: q.title, score: opt.scores[i], why: opt.why?.[i] });
+    });
+  });
+  return instances;
+}
+
 /* ============================================================
    UI PIECES
    ============================================================ */
@@ -506,7 +522,14 @@ function ScorePopup({ feedback, onContinue, isLast }) {
 
 function ResultsScreen({ answers, onRestart }) {
   const results = useMemo(() => computeResults(answers), [answers]);
+  const breakdown = useMemo(() => getCompetencyBreakdown(answers), [answers]);
   const [copied, setCopied] = useState(false);
+
+  const strengths = COMP_ORDER.filter((c) => results.avg[c] !== null && results.avg[c] >= 3);
+  const gaps = COMP_ORDER.filter((c) => results.avg[c] !== null && results.avg[c] < 3);
+
+  const bestInstance = (c) => breakdown[c].reduce((a, b) => (b.score > a.score ? b : a), breakdown[c][0]);
+  const worstInstance = (c) => breakdown[c].reduce((a, b) => (b.score < a.score ? b : a), breakdown[c][0]);
 
   const copySummary = () => {
     const lines = [
@@ -517,6 +540,13 @@ function ResultsScreen({ answers, onRestart }) {
       `Total: ${fmtScore(results.total)} / ${LEVEL.threshold} needed`,
       "",
       ...COMP_ORDER.map((c) => `${COMPETENCIES[c].name}: ${results.avg[c] !== null ? fmtScore(results.avg[c]) : "—"} / 4`),
+      "",
+      strengths.length
+        ? `Strong on: ${strengths.map((c) => COMPETENCIES[c].name).join(", ")}`
+        : "No competency cleared the pass line this run.",
+      gaps.length
+        ? `Gaps remaining: ${gaps.map((c) => COMPETENCIES[c].name).join(", ")}`
+        : "No gaps — every competency cleared the pass line.",
       "",
       results.redFlagsHit.length
         ? `Red flags triggered: ${results.redFlagsHit.map((r) => r.flag).join("; ")}`
@@ -540,6 +570,44 @@ function ResultsScreen({ answers, onRestart }) {
             : `Cleared the L${LEVEL.id} bar. Ready to start Game 2 (L1) when it's built.`
           : `Below the pass line for one or more competencies — see the breakdown above.`}
       </p>
+
+      <div className="summary-section">
+        {strengths.length > 0 && (
+          <div className="summary-block summary-strengths">
+            <span className="summary-heading">What went well</span>
+            <ul>
+              {strengths.map((c) => {
+                const inst = bestInstance(c);
+                return (
+                  <li key={c}>
+                    <strong>{COMPETENCIES[c].name}</strong> ({fmtScore(results.avg[c])}/4)
+                    {inst?.why ? <> — {inst.why}</> : null}
+                    {inst?.title ? <span className="summary-source"> · {inst.title}</span> : null}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
+
+        {gaps.length > 0 && (
+          <div className="summary-block summary-gaps">
+            <span className="summary-heading">Gaps remaining</span>
+            <ul>
+              {gaps.map((c) => {
+                const inst = worstInstance(c);
+                return (
+                  <li key={c}>
+                    <strong>{COMPETENCIES[c].name}</strong> ({fmtScore(results.avg[c])}/4)
+                    {inst?.why ? <> — {inst.why}</> : null}
+                    {inst?.title ? <span className="summary-source"> · {inst.title}</span> : null}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
+      </div>
 
       {results.redFlagsHit.length > 0 && (
         <div className="redflag-panel">
@@ -827,6 +895,23 @@ export default function FacilitatorMatrixGameL0() {
 
         .results-verdict { font-family: 'Fraunces', serif; font-size: 34px; font-weight: 600; margin: 10px 0 12px; }
         .results-tagline { color: var(--paper-soft); font-size: 15px; line-height: 1.6; max-width: 480px; margin-bottom: 28px; }
+
+        .summary-section { display: flex; flex-direction: column; gap: 18px; margin-bottom: 28px; }
+        .summary-block {
+          background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+          padding: 16px 20px;
+        }
+        .summary-heading {
+          font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.08em;
+          text-transform: uppercase; font-weight: 600;
+        }
+        .summary-strengths .summary-heading { color: var(--moss); }
+        .summary-gaps .summary-heading { color: #B87A15; }
+        .summary-block ul { margin: 10px 0 0; padding-left: 18px; }
+        .summary-block li { font-size: 13.5px; line-height: 1.6; color: var(--paper-soft); margin-bottom: 6px; }
+        .summary-block li:last-child { margin-bottom: 0; }
+        .summary-block li strong { color: var(--paper); }
+        .summary-source { color: var(--muted); font-size: 12px; }
 
         .redflag-panel {
           background: rgba(225,87,79,0.07); border: 1px solid rgba(225,87,79,0.28);
