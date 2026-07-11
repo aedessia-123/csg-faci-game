@@ -424,7 +424,7 @@ function IntroScreen({ onStart }) {
   );
 }
 
-function QuestionScreen({ q, qIndex, total, onAnswer, animKey }) {
+function QuestionScreen({ q, qIndex, total, onAnswer, animKey, selectedOption }) {
   return (
     <div className="screen question" key={animKey}>
       <span className="q-tag">
@@ -434,11 +434,50 @@ function QuestionScreen({ q, qIndex, total, onAnswer, animKey }) {
       <p className="q-text">{q.text}</p>
       <div className="options">
         {q.options.map((opt, i) => (
-          <button className="option-card" key={i} onClick={() => onAnswer(i)}>
+          <button
+            className={`option-card${selectedOption === i ? " option-card-selected" : ""}`}
+            key={i}
+            onClick={() => onAnswer(i)}
+            disabled={selectedOption !== null}
+          >
             <span className="option-letter">{String.fromCharCode(65 + i)}</span>
             <span className="option-text">{opt.text}</span>
           </button>
         ))}
+      </div>
+    </div>
+  );
+}
+
+function ScorePopup({ feedback, onContinue, isLast }) {
+  const { comps, scores } = feedback;
+  return (
+    <div className="popup-overlay">
+      <div className="popup-card">
+        <span className="popup-eyebrow">How that choice landed</span>
+        <div className="popup-rows">
+          {comps.map((c, i) => {
+            const val = scores[i];
+            const positive = val >= 3;
+            return (
+              <div className="popup-row" key={c}>
+                <div className="popup-row-label">
+                  <span>{COMPETENCIES[c].icon}</span>
+                  <span>{COMPETENCIES[c].name}</span>
+                </div>
+                <span className={`popup-badge ${positive ? "popup-badge-pos" : "popup-badge-neg"}`}>
+                  {positive ? "+" : "–"} {val}/4
+                </span>
+              </div>
+            );
+          })}
+        </div>
+        <p className="popup-note">
+          Every choice trades one strength for another — there's no perfect option, only the one you'd defend.
+        </p>
+        <button className="btn-primary popup-continue" onClick={onContinue}>
+          {isLast ? "See your results →" : "Continue →"}
+        </button>
       </div>
     </div>
   );
@@ -549,18 +588,23 @@ export default function FacilitatorMatrixGameL0() {
   const [qIndex, setQIndex] = useState(0);
   const [answers, setAnswers] = useState(Array(QUESTIONS.length).fill(null));
   const [animKey, setAnimKey] = useState(0);
+  const [selectedOption, setSelectedOption] = useState(null);
 
   const handleAnswer = (optIdx) => {
+    if (selectedOption !== null) return;
     const next = [...answers];
     next[qIndex] = optIdx;
     setAnswers(next);
+    setSelectedOption(optIdx);
+  };
+
+  const handleContinue = () => {
+    setSelectedOption(null);
     if (qIndex + 1 < QUESTIONS.length) {
-      setTimeout(() => {
-        setQIndex(qIndex + 1);
-        setAnimKey((k) => k + 1);
-      }, 160);
+      setQIndex(qIndex + 1);
+      setAnimKey((k) => k + 1);
     } else {
-      setTimeout(() => setScreen("results"), 220);
+      setScreen("results");
     }
   };
 
@@ -568,6 +612,7 @@ export default function FacilitatorMatrixGameL0() {
     setAnswers(Array(QUESTIONS.length).fill(null));
     setQIndex(0);
     setAnimKey((k) => k + 1);
+    setSelectedOption(null);
     setScreen("intro");
   };
 
@@ -747,6 +792,46 @@ export default function FacilitatorMatrixGameL0() {
         }
         .option-card:hover { border-color: var(--moss); background: var(--surface-2); transform: translateX(2px); }
         .option-card:focus-visible { outline: 2px solid var(--moss); outline-offset: 2px; }
+        .option-card:disabled { cursor: default; }
+        .option-card:disabled:hover { transform: none; }
+        .option-card-selected { border-color: var(--moss); background: var(--surface-2); }
+
+        .popup-overlay {
+          position: fixed; inset: 0; z-index: 50;
+          background: rgba(20, 15, 5, 0.45);
+          backdrop-filter: blur(2px);
+          display: flex; align-items: center; justify-content: center;
+          padding: 24px;
+          animation: fadeIn 0.2s ease both;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .popup-card {
+          background: var(--surface);
+          border: 1px solid var(--line);
+          border-radius: 16px;
+          padding: 24px 26px;
+          max-width: 380px;
+          width: 100%;
+          box-shadow: 0 20px 50px rgba(20, 15, 5, 0.25);
+          animation: popIn 0.25s ease both;
+        }
+        @keyframes popIn { from { opacity: 0; transform: translateY(8px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @media (prefers-reduced-motion: reduce) { .popup-overlay, .popup-card { animation: none; } }
+        .popup-eyebrow {
+          font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.1em;
+          text-transform: uppercase; color: var(--moss);
+        }
+        .popup-rows { display: flex; flex-direction: column; gap: 10px; margin: 16px 0 18px; }
+        .popup-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .popup-row-label { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--paper); }
+        .popup-badge {
+          font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; font-weight: 600;
+          padding: 3px 10px; border-radius: 20px; white-space: nowrap;
+        }
+        .popup-badge-pos { background: rgba(46,158,99,0.14); color: var(--moss); }
+        .popup-badge-neg { background: rgba(242,169,59,0.16); color: #B87A15; }
+        .popup-note { font-size: 13px; line-height: 1.55; color: var(--paper-soft); margin-bottom: 20px; }
+        .popup-continue { width: 100%; }
         .option-letter {
           font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600; color: var(--moss);
           border: 1px solid var(--line); border-radius: 50%; width: 24px; height: 24px;
@@ -805,7 +890,22 @@ export default function FacilitatorMatrixGameL0() {
       {screen === "intro" && <IntroScreen onStart={() => setScreen("quiz")} />}
 
       {screen === "quiz" && (
-        <QuestionScreen q={QUESTIONS[qIndex]} qIndex={qIndex} total={QUESTIONS.length} onAnswer={handleAnswer} animKey={animKey} />
+        <QuestionScreen
+          q={QUESTIONS[qIndex]}
+          qIndex={qIndex}
+          total={QUESTIONS.length}
+          onAnswer={handleAnswer}
+          animKey={animKey}
+          selectedOption={selectedOption}
+        />
+      )}
+
+      {screen === "quiz" && selectedOption !== null && (
+        <ScorePopup
+          feedback={{ comps: QUESTIONS[qIndex].comps, scores: QUESTIONS[qIndex].options[selectedOption].scores }}
+          onContinue={handleContinue}
+          isLast={qIndex + 1 >= QUESTIONS.length}
+        />
       )}
 
       {screen === "results" && <ResultsScreen answers={answers} onRestart={restart} />}
