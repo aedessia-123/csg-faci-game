@@ -451,22 +451,32 @@ function QuestionScreen({ q, qIndex, total, onAnswer, animKey, selectedOption })
 
 function ScorePopup({ feedback, onContinue, isLast }) {
   const { comps, scores } = feedback;
+  const scoreByComp = {};
+  comps.forEach((c, i) => {
+    scoreByComp[c] = scores[i];
+  });
+
   return (
     <div className="popup-overlay">
       <div className="popup-card">
         <span className="popup-eyebrow">How that choice landed</span>
         <div className="popup-rows">
-          {comps.map((c, i) => {
-            const val = scores[i];
-            const positive = val >= 3;
+          {COMP_ORDER.map((c) => {
+            const val = scoreByComp[c];
+            const tested = val !== undefined;
+            const positive = tested && val >= 3;
             return (
               <div className="popup-row" key={c}>
                 <div className="popup-row-label">
                   <span>{COMPETENCIES[c].icon}</span>
                   <span>{COMPETENCIES[c].name}</span>
                 </div>
-                <span className={`popup-badge ${positive ? "popup-badge-pos" : "popup-badge-neg"}`}>
-                  {positive ? "+" : "–"} {val}/4
+                <span
+                  className={`popup-badge ${
+                    tested ? (positive ? "popup-badge-pos" : "popup-badge-neg") : "popup-badge-neutral"
+                  }`}
+                >
+                  {tested ? `${positive ? "+" : "–"} ${val}/4` : "+0"}
                 </span>
               </div>
             );
@@ -830,6 +840,7 @@ export default function FacilitatorMatrixGameL0() {
         }
         .popup-badge-pos { background: rgba(46,158,99,0.14); color: var(--moss); }
         .popup-badge-neg { background: rgba(242,169,59,0.16); color: #B87A15; }
+        .popup-badge-neutral { background: var(--surface-2); color: var(--muted); }
         .popup-note { font-size: 13px; line-height: 1.55; color: var(--paper-soft); margin-bottom: 20px; }
         .popup-continue { width: 100%; }
         .option-letter {
