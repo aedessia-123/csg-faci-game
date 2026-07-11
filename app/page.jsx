@@ -60,10 +60,27 @@ const QUESTIONS = [
     text: "Ten minutes into a small-group discussion, one participant has been talking for a while, circling the same point. A couple of others have gone quiet and started checking their phones. You still have three items left on the agenda.",
     comps: ["execution_discipline", "task_integrity"],
     options: [
-      { text: "Interrupt at the next breath, name that you need to move on, and open the floor to the rest of the group.", scores: [4, 2] },
-      { text: "Let them finish their thought completely, even if it means dropping one of the later agenda items.", scores: [2, 4] },
-      { text: "Wait for a natural pause, reflect back the core of what they said, then redirect to the group.", scores: [3, 3] },
-      { text: "Let the conversation continue as it is, trusting the group to redirect itself if it needs to.", scores: [2, 1], redFlag: 4 },
+      {
+        text: "Interrupt at the next breath, name that you need to move on, and open the floor to the rest of the group.",
+        scores: [4, 2],
+        why: ["Keeps the agenda moving without losing more time.", "Cuts them off before their point is fully out."],
+      },
+      {
+        text: "Let them finish their thought completely, even if it means dropping one of the later agenda items.",
+        scores: [2, 4],
+        why: ["Costs you a later agenda item to get here.", "Lets their full point land before you move on."],
+      },
+      {
+        text: "Wait for a natural pause, reflect back the core of what they said, then redirect to the group.",
+        scores: [3, 3],
+        why: ["A brief wait costs a little time but stays in control.", "Reflecting their point back shows it was heard before moving on."],
+      },
+      {
+        text: "Let the conversation continue as it is, trusting the group to redirect itself if it needs to.",
+        scores: [2, 1],
+        redFlag: 4,
+        why: ["Leaves the agenda drifting with no active management.", "The tangent keeps running instead of resolving into something usable."],
+      },
     ],
   },
   {
@@ -71,10 +88,27 @@ const QUESTIONS = [
     text: "You ask the group an open question meant to deepen the discussion. Nobody answers. The silence stretches past ten seconds.",
     comps: ["cognitive_ownership", "stability"],
     options: [
-      { text: "Call on a specific participant by name, so the group has a starting point.", scores: [4, 2] },
-      { text: "Hold the silence and stay visibly calm, waiting without rushing to fix it, even past the point of discomfort.", scores: [2, 4] },
-      { text: "After a brief pause, rephrase the question and offer a short example of your own to open the door.", scores: [3, 3] },
-      { text: "Assume the question was unclear, move past it, and go straight to the next agenda item.", scores: [1, 1], redFlag: 4 },
+      {
+        text: "Call on a specific participant by name, so the group has a starting point.",
+        scores: [4, 2],
+        why: ["Takes ownership of unblocking the silence immediately.", "Puts one person on the spot, which can rattle the room."],
+      },
+      {
+        text: "Hold the silence and stay visibly calm, waiting without rushing to fix it, even past the point of discomfort.",
+        scores: [2, 4],
+        why: ["Doesn't actively work the problem, just outlasts it.", "Keeps your composure and the room's trust intact."],
+      },
+      {
+        text: "After a brief pause, rephrase the question and offer a short example of your own to open the door.",
+        scores: [3, 3],
+        why: ["Actively re-frames the question instead of waiting it out.", "A brief pause first keeps the room from feeling rushed."],
+      },
+      {
+        text: "Assume the question was unclear, move past it, and go straight to the next agenda item.",
+        scores: [1, 1],
+        redFlag: 4,
+        why: ["Abandons the question instead of working through it.", "Drops the thread entirely rather than holding the moment."],
+      },
     ],
   },
   {
@@ -82,10 +116,27 @@ const QUESTIONS = [
     text: "Two participants start disagreeing sharply, their tone rising. The rest of the small group goes quiet and starts watching you.",
     comps: ["execution_discipline", "cognitive_ownership"],
     options: [
-      { text: "End the discussion and move to the next agenda item without addressing what happened.", scores: [4, 2] },
-      { text: "Set the agenda aside and work through the disagreement with them for as long as it takes to reach some resolution.", scores: [2, 4] },
-      { text: "Name what you're noticing, invite each of them to share briefly, then steer back toward the group's shared goal.", scores: [3, 3] },
-      { text: "Pause the session and go find the program lead to weigh in on what to do.", scores: [1, 1], redFlag: 3 },
+      {
+        text: "End the discussion and move to the next agenda item without addressing what happened.",
+        scores: [4, 2],
+        why: ["Keeps the session on schedule right away.", "Skips the judgment call of actually addressing the conflict."],
+      },
+      {
+        text: "Set the agenda aside and work through the disagreement with them for as long as it takes to reach some resolution.",
+        scores: [2, 4],
+        why: ["The agenda is set aside indefinitely to do this.", "Shows real judgment working through the actual disagreement."],
+      },
+      {
+        text: "Name what you're noticing, invite each of them to share briefly, then steer back toward the group's shared goal.",
+        scores: [3, 3],
+        why: ["Time-boxed, so the agenda only slips a little.", "Engages with the conflict directly instead of skipping past it."],
+      },
+      {
+        text: "Pause the session and go find the program lead to weigh in on what to do.",
+        scores: [1, 1],
+        redFlag: 3,
+        why: ["Stalls the whole session waiting on someone else.", "Hands off the judgment call instead of making it yourself."],
+      },
     ],
   },
   {
@@ -93,10 +144,27 @@ const QUESTIONS = [
     text: "Mid-activity, a participant unexpectedly shares something personal and emotionally heavy that has nothing to do with the session's topic. The room goes still.",
     comps: ["task_integrity", "stability"],
     options: [
-      { text: "Acknowledge it briefly, note it for a private follow-up after, and continue the planned activity without further pause.", scores: [4, 2] },
-      { text: "Pause the planned activity entirely and let the conversation go wherever it needs to for as long as it takes.", scores: [2, 4] },
-      { text: "Pause briefly to acknowledge what was shared and check on the person, then bring the group back to the activity.", scores: [3, 3] },
-      { text: "Move straight on to the next planned item without pausing on what was shared.", scores: [2, 1], redFlag: 5 },
+      {
+        text: "Acknowledge it briefly, note it for a private follow-up after, and continue the planned activity without further pause.",
+        scores: [4, 2],
+        why: ["The planned activity stays complete and on track.", "Moves on quickly without letting the room actually settle."],
+      },
+      {
+        text: "Pause the planned activity entirely and let the conversation go wherever it needs to for as long as it takes.",
+        scores: [2, 4],
+        why: ["The planned activity is dropped, so nothing gets finished.", "Fully honors the moment and keeps the room steady."],
+      },
+      {
+        text: "Pause briefly to acknowledge what was shared and check on the person, then bring the group back to the activity.",
+        scores: [3, 3],
+        why: ["The activity picks back up, just a little later.", "A brief check-in settles the room before moving on."],
+      },
+      {
+        text: "Move straight on to the next planned item without pausing on what was shared.",
+        scores: [2, 1],
+        redFlag: 5,
+        why: ["Technically keeps the plan intact, but leaves it unresolved.", "The room doesn't get a moment to settle before moving on."],
+      },
     ],
   },
   {
@@ -104,10 +172,27 @@ const QUESTIONS = [
     text: "You're 20 minutes from the end of a 90-minute session and still have two activities left. The group is engaged, but there's no way to finish both as planned.",
     comps: ["execution_discipline", "stability"],
     options: [
-      { text: "Cut the remaining activity and move straight to closing, regardless of where the group is in the moment.", scores: [4, 2] },
-      { text: "Let the current activity run its natural course, even if the session ends up running past its scheduled end time.", scores: [2, 4] },
-      { text: "Decide which activity matters most, shorten or cut the other, and say so transparently to the group.", scores: [3, 3] },
-      { text: "Try to move through both activities as briefly as possible so everything is technically covered.", scores: [2, 1], redFlag: 1 },
+      {
+        text: "Cut the remaining activity and move straight to closing, regardless of where the group is in the moment.",
+        scores: [4, 2],
+        why: ["Hits the schedule exactly as planned.", "The abrupt cut disrupts the group's sense of momentum."],
+      },
+      {
+        text: "Let the current activity run its natural course, even if the session ends up running past its scheduled end time.",
+        scores: [2, 4],
+        why: ["The session runs over its scheduled time.", "The group's flow stays smooth and uninterrupted."],
+      },
+      {
+        text: "Decide which activity matters most, shorten or cut the other, and say so transparently to the group.",
+        scores: [3, 3],
+        why: ["A deliberate cut keeps things close to on-time.", "Naming the change keeps the room steady through it."],
+      },
+      {
+        text: "Try to move through both activities as briefly as possible so everything is technically covered.",
+        scores: [2, 1],
+        redFlag: 1,
+        why: ["Doesn't actually protect the clock, just rushes it.", "The rushed pace unsettles the group's experience."],
+      },
     ],
   },
   {
@@ -115,10 +200,27 @@ const QUESTIONS = [
     text: "You give the small group instructions for a paired activity. Partway through, you notice two participants are clearly doing something different from what you intended, but they haven't asked for help.",
     comps: ["cognitive_ownership", "task_integrity"],
     options: [
-      { text: "Go over and re-explain it to just those two, without interrupting the rest of the room.", scores: [4, 2] },
-      { text: "Stop the whole group and re-explain the instructions from scratch to everyone.", scores: [2, 4] },
-      { text: "Go over, check what they understood, and adjust the activity to fit what's already happened.", scores: [3, 3] },
-      { text: "Note it, but wait to see if they realize and self-correct before the activity ends.", scores: [1, 1], redFlag: 0 },
+      {
+        text: "Go over and re-explain it to just those two, without interrupting the rest of the room.",
+        scores: [4, 2],
+        why: ["A quick, independent read of exactly what's needed.", "Leaves it unclear if their output now matches everyone else's."],
+      },
+      {
+        text: "Stop the whole group and re-explain the instructions from scratch to everyone.",
+        scores: [2, 4],
+        why: ["Overrides your own read with a blanket fix.", "Everyone ends up working from the same clear instructions."],
+      },
+      {
+        text: "Go over, check what they understood, and adjust the activity to fit what's already happened.",
+        scores: [3, 3],
+        why: ["A targeted read of what actually went wrong.", "Tailors the fix so their output still lines up."],
+      },
+      {
+        text: "Note it, but wait to see if they realize and self-correct before the activity ends.",
+        scores: [1, 1],
+        redFlag: 0,
+        why: ["No independent read of what's actually happening.", "Risks their output staying unusable if they never notice."],
+      },
     ],
   },
   {
@@ -126,10 +228,27 @@ const QUESTIONS = [
     text: "Halfway through a session, the projector cuts out and your slides are gone. The small group is looking at you, waiting.",
     comps: ["execution_discipline", "task_integrity"],
     options: [
-      { text: "Skip the slide-dependent parts entirely and move to whatever doesn't need visuals.", scores: [4, 2] },
-      { text: "Pause the session and take as long as it takes to get the projector working again.", scores: [2, 4] },
-      { text: "Keep the session moving from memory using the whiteboard and a verbal recap, then fix the tech in a natural break.", scores: [3, 3] },
-      { text: "Wait for the co-facilitator, who's running another room, to come sort it out.", scores: [1, 1], redFlag: 2 },
+      {
+        text: "Skip the slide-dependent parts entirely and move to whatever doesn't need visuals.",
+        scores: [4, 2],
+        why: ["Keeps the session moving with no dead time.", "Some planned content never actually gets delivered."],
+      },
+      {
+        text: "Pause the session and take as long as it takes to get the projector working again.",
+        scores: [2, 4],
+        why: ["Pace stalls out for an unclear stretch of time.", "Once fixed, all the planned content still gets delivered."],
+      },
+      {
+        text: "Keep the session moving from memory using the whiteboard and a verbal recap, then fix the tech in a natural break.",
+        scores: [3, 3],
+        why: ["Momentum holds with only a minor workaround.", "Covers the same ground, just through a different medium."],
+      },
+      {
+        text: "Wait for the co-facilitator, who's running another room, to come sort it out.",
+        scores: [1, 1],
+        redFlag: 2,
+        why: ["The session stalls waiting on someone else entirely.", "Nothing progresses toward the content in the meantime."],
+      },
     ],
   },
   {
@@ -137,10 +256,27 @@ const QUESTIONS = [
     text: "About an hour in, the small group's energy has visibly dropped — shorter answers, less eye contact, a couple of side conversations. Your plan doesn't call for a break yet.",
     comps: ["cognitive_ownership", "stability"],
     options: [
-      { text: "Stop the current activity and insert an energizer or break right away, adjusting the plan on the spot.", scores: [4, 2] },
-      { text: "Continue exactly as planned, trusting the structure of the session to carry the group through the dip.", scores: [2, 4] },
-      { text: "Name the dip lightly, insert a short energizer, then return to the plan.", scores: [3, 3] },
-      { text: "Speed up delivery to get through the remaining content faster.", scores: [2, 1], redFlag: 1 },
+      {
+        text: "Stop the current activity and insert an energizer or break right away, adjusting the plan on the spot.",
+        scores: [4, 2],
+        why: ["Reads the room and acts on it immediately.", "Breaks the plan's structure to make the adjustment."],
+      },
+      {
+        text: "Continue exactly as planned, trusting the structure of the session to carry the group through the dip.",
+        scores: [2, 4],
+        why: ["Doesn't actually respond to what the room is signaling.", "Keeps the plan's momentum fully intact."],
+      },
+      {
+        text: "Name the dip lightly, insert a short energizer, then return to the plan.",
+        scores: [3, 3],
+        why: ["A small, deliberate read-and-adjust on the room's energy.", "The plan's structure holds, just with a short detour."],
+      },
+      {
+        text: "Speed up delivery to get through the remaining content faster.",
+        scores: [2, 1],
+        redFlag: 1,
+        why: ["Ignores the actual signal instead of addressing it.", "Rushing past it unsettles the room even further."],
+      },
     ],
   },
 ];
@@ -327,10 +463,10 @@ function QuestionScreen({ q, qIndex, total, onAnswer, animKey, selectedOption })
 }
 
 function ScorePopup({ feedback, onContinue, isLast }) {
-  const { comps, scores } = feedback;
-  const scoreByComp = {};
+  const { comps, scores, why } = feedback;
+  const dataByComp = {};
   comps.forEach((c, i) => {
-    scoreByComp[c] = scores[i];
+    dataByComp[c] = { score: scores[i], why: why?.[i] };
   });
 
   return (
@@ -339,29 +475,29 @@ function ScorePopup({ feedback, onContinue, isLast }) {
         <span className="popup-eyebrow">How that choice landed</span>
         <div className="popup-rows">
           {COMP_ORDER.map((c) => {
-            const val = scoreByComp[c];
-            const tested = val !== undefined;
-            const positive = tested && val >= 3;
+            const data = dataByComp[c];
+            const tested = data !== undefined;
+            const positive = tested && data.score >= 3;
             return (
               <div className="popup-row" key={c}>
-                <div className="popup-row-label">
-                  <span>{COMPETENCIES[c].icon}</span>
-                  <span>{COMPETENCIES[c].name}</span>
+                <div className="popup-row-top">
+                  <div className="popup-row-label">
+                    <span>{COMPETENCIES[c].icon}</span>
+                    <span>{COMPETENCIES[c].name}</span>
+                  </div>
+                  <span
+                    className={`popup-badge ${
+                      tested ? (positive ? "popup-badge-pos" : "popup-badge-neg") : "popup-badge-neutral"
+                    }`}
+                  >
+                    {tested ? `${positive ? "+" : "–"} ${data.score}/4` : "+0"}
+                  </span>
                 </div>
-                <span
-                  className={`popup-badge ${
-                    tested ? (positive ? "popup-badge-pos" : "popup-badge-neg") : "popup-badge-neutral"
-                  }`}
-                >
-                  {tested ? `${positive ? "+" : "–"} ${val}/4` : "+0"}
-                </span>
+                {tested && data.why && <p className="popup-row-why">{data.why}</p>}
               </div>
             );
           })}
         </div>
-        <p className="popup-note">
-          Every choice trades one strength for another — there's no perfect option, only the one you'd defend.
-        </p>
         <button className="btn-primary popup-continue" onClick={onContinue}>
           {isLast ? "See your results →" : "Continue →"}
         </button>
@@ -659,8 +795,10 @@ export default function FacilitatorMatrixGameL0() {
           border: 1px solid var(--line);
           border-radius: 16px;
           padding: 24px 26px;
-          max-width: 380px;
+          max-width: 420px;
           width: 100%;
+          max-height: 85vh;
+          overflow-y: auto;
           box-shadow: 0 20px 50px rgba(20, 15, 5, 0.25);
           animation: popIn 0.25s ease both;
         }
@@ -670,9 +808,9 @@ export default function FacilitatorMatrixGameL0() {
           font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.1em;
           text-transform: uppercase; color: var(--moss);
         }
-        .popup-rows { display: flex; flex-direction: column; gap: 10px; margin: 16px 0 18px; }
-        .popup-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-        .popup-row-label { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--paper); }
+        .popup-rows { display: flex; flex-direction: column; gap: 14px; margin: 16px 0 20px; }
+        .popup-row-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .popup-row-label { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--paper); font-weight: 500; }
         .popup-badge {
           font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; font-weight: 600;
           padding: 3px 10px; border-radius: 20px; white-space: nowrap;
@@ -680,7 +818,7 @@ export default function FacilitatorMatrixGameL0() {
         .popup-badge-pos { background: rgba(46,158,99,0.14); color: var(--moss); }
         .popup-badge-neg { background: rgba(242,169,59,0.16); color: #B87A15; }
         .popup-badge-neutral { background: var(--surface-2); color: var(--muted); }
-        .popup-note { font-size: 13px; line-height: 1.55; color: var(--paper-soft); margin-bottom: 20px; }
+        .popup-row-why { font-size: 12.5px; line-height: 1.5; color: var(--paper-soft); margin-top: 4px; }
         .popup-continue { width: 100%; }
         .option-letter {
           font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600; color: var(--moss);
@@ -735,7 +873,11 @@ export default function FacilitatorMatrixGameL0() {
 
       {screen === "quiz" && selectedOption !== null && (
         <ScorePopup
-          feedback={{ comps: QUESTIONS[qIndex].comps, scores: QUESTIONS[qIndex].options[selectedOption].scores }}
+          feedback={{
+            comps: QUESTIONS[qIndex].comps,
+            scores: QUESTIONS[qIndex].options[selectedOption].scores,
+            why: QUESTIONS[qIndex].options[selectedOption].why,
+          }}
           onContinue={handleContinue}
           isLast={qIndex + 1 >= QUESTIONS.length}
         />
