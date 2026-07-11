@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useMemo, useRef } from "react";
+import React, { useState, useMemo } from "react";
 
 /* ============================================================
    LEVEL CONFIG — Game 1: L0 Pre-Facilitator
@@ -189,159 +189,24 @@ function computeResults(answers) {
 }
 
 /* ============================================================
-   SIGNATURE VISUAL — the Gate
-   Four pillars (one per competency), a lintel that lights up
-   only once every pillar clears the pass line.
-   ============================================================ */
-
-function Gate({ avg, size = 340 }) {
-  const width = 400;
-  const height = 260;
-  const groundY = 220;
-  const maxH = 140;
-  const pillarW = 46;
-  const xs = [70, 160, 250, 340];
-  const passLineFrac = 0.75; // score 3 out of 4
-
-  const allPass = COMP_ORDER.every((c) => avg[c] !== null && avg[c] >= 3);
-  const lintelY = groundY - maxH - 24;
-
-  return (
-    <svg viewBox={`0 0 ${width} ${height}`} width={size} height={(size * height) / width} className="gate">
-      {/* lintel */}
-      <rect
-        x={xs[0] - pillarW / 2 - 6}
-        y={lintelY}
-        width={xs[3] - xs[0] + pillarW + 12}
-        height={14}
-        rx="3"
-        fill={allPass ? "var(--moss)" : "var(--surface-2)"}
-        opacity={allPass ? 1 : 0.85}
-        style={{ transition: "fill 0.5s ease" }}
-      />
-      {allPass && (
-        <rect
-          x={xs[0] - pillarW / 2 - 6}
-          y={lintelY}
-          width={xs[3] - xs[0] + pillarW + 12}
-          height={14}
-          rx="3"
-          fill="none"
-          stroke="var(--paper)"
-          strokeOpacity="0.4"
-        />
-      )}
-
-      {/* ground */}
-      <line x1="20" y1={groundY} x2={width - 20} y2={groundY} stroke="var(--line)" strokeWidth="1" />
-
-      {/* pass-line marker */}
-      <line
-        x1={xs[0] - pillarW}
-        y1={groundY - maxH * passLineFrac}
-        x2={xs[3] + pillarW}
-        y2={groundY - maxH * passLineFrac}
-        stroke="var(--muted)"
-        strokeDasharray="3 4"
-        strokeWidth="1"
-        opacity="0.55"
-      />
-
-      {COMP_ORDER.map((c, i) => {
-        const a = avg[c];
-        const filled = a !== null;
-        const h = filled ? Math.max((a / 4) * maxH, 6) : 4;
-        const pass = filled && a >= 3;
-        return (
-          <g key={c}>
-            <rect
-              x={xs[i] - pillarW / 2}
-              y={groundY - maxH}
-              width={pillarW}
-              height={maxH}
-              fill="var(--surface-2)"
-              opacity="0.9"
-              rx="4"
-            />
-            <rect
-              x={xs[i] - pillarW / 2}
-              y={groundY - h}
-              width={pillarW}
-              height={h}
-              fill={pass ? "var(--moss)" : "var(--ember)"}
-              opacity={filled ? 1 : 0}
-              rx="4"
-              style={{ transition: "height 0.5s ease, y 0.5s ease" }}
-            />
-            <text
-              x={xs[i]}
-              y={groundY + 20}
-              textAnchor="middle"
-              className="gate-label"
-            >
-              {COMPETENCIES[c].icon}
-            </text>
-          </g>
-        );
-      })}
-    </svg>
-  );
-}
-
-/* ============================================================
    UI PIECES
    ============================================================ */
 
-function polarToCartesian(cx, cy, r, angleDeg) {
-  const rad = ((angleDeg - 90) * Math.PI) / 180;
-  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
-}
-
-function describeArc(cx, cy, r, startAngle, endAngle) {
-  const start = polarToCartesian(cx, cy, r, startAngle);
-  const end = polarToCartesian(cx, cy, r, endAngle);
-  const largeArcFlag = endAngle - startAngle <= 180 ? 0 : 1;
-  return `M ${start.x} ${start.y} A ${r} ${r} 0 ${largeArcFlag} 1 ${end.x} ${end.y}`;
-}
-
-const GAUGE_START = -120;
-const GAUGE_END = 120;
-
-function Gauge({ id, avg, size = 76 }) {
+function CompBar({ id, avg }) {
   const c = COMPETENCIES[id];
   const filled = avg !== null;
-  const pct = filled ? Math.max(0, Math.min(1, avg / 4)) : 0;
-  const valueAngle = GAUGE_START + pct * (GAUGE_END - GAUGE_START);
-  const passAngle = GAUGE_START + 0.75 * (GAUGE_END - GAUGE_START);
+  const pct = filled ? Math.max((avg / 4) * 100, 6) : 0;
   const pass = filled && avg >= 3;
-  const color = !filled ? "var(--dash-muted)" : pass ? "var(--moss)" : "var(--ember)";
-  const r = size / 2 - 10;
-  const cx = size / 2;
-  const cy = size / 2 + 6;
-  const needleTip = polarToCartesian(cx, cy, r - 6, filled ? valueAngle : GAUGE_START);
-  const tickOuter = polarToCartesian(cx, cy, r + 6, passAngle);
-  const tickInner = polarToCartesian(cx, cy, r - 6, passAngle);
-
+  const color = filled ? (pass ? "var(--moss)" : "var(--ember)") : "var(--dash-line)";
   return (
-    <div className="gauge">
-      <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size}>
-        <path d={describeArc(cx, cy, r, GAUGE_START, GAUGE_END)} className="gauge-track" fill="none" />
-        {filled && (
-          <path
-            d={describeArc(cx, cy, r, GAUGE_START, valueAngle)}
-            stroke={color}
-            className="gauge-value"
-            fill="none"
-          />
-        )}
-        <line x1={tickInner.x} y1={tickInner.y} x2={tickOuter.x} y2={tickOuter.y} className="gauge-passtick" />
-        <line x1={cx} y1={cy} x2={needleTip.x} y2={needleTip.y} className="gauge-needle" />
-        <circle cx={cx} cy={cy} r="4" className="gauge-hub" />
-      </svg>
-      <div className="gauge-readout">
-        <span className="gauge-icon">{c.icon}</span>
-        <span className="gauge-value-text">{filled ? avg.toFixed(1) : "–"}</span>
+    <div className="comp-bar">
+      <span className="comp-bar-icon">{c.icon}</span>
+      <span className="comp-bar-name">{c.name}</span>
+      <div className="comp-bar-track">
+        <div className="comp-bar-fill" style={{ width: `${pct}%`, background: color }} />
+        <div className="comp-bar-threshold" />
       </div>
+      <span className="comp-bar-value">{filled ? avg.toFixed(1) : "–"}</span>
     </div>
   );
 }
@@ -349,34 +214,42 @@ function Gauge({ id, avg, size = 76 }) {
 function Dashboard({ answers, qIndex, total }) {
   const results = useMemo(() => computeResults(answers), [answers]);
   const segments = Array.from({ length: total });
+  const scoreColor = results.cleared ? "var(--moss)" : "var(--dash-text)";
   return (
     <div className="dashboard">
       <div className="dashboard-inner">
-        <div className="dashboard-left">
-          <div className="brand">
-            <span className="brand-mark">◐</span>
-            <span className="brand-name">
-              The Facilitator Matrix · Game {LEVEL.gameNumber} of {LEVEL.totalGames} · L{LEVEL.id}
+        <div className="brand">
+          <span className="brand-mark">◐</span>
+          <span className="brand-name">
+            The Facilitator Matrix · Game {LEVEL.gameNumber} of {LEVEL.totalGames} · L{LEVEL.id}
+          </span>
+        </div>
+
+        <div className="dashboard-main">
+          <div className="dashboard-score-block">
+            <span className="dashboard-score-label">Your score</span>
+            <span className="dashboard-score-value" style={{ color: scoreColor }}>
+              {results.total.toFixed(1)}
+              <span className="dashboard-score-sep"> / </span>
+              {LEVEL.threshold}
             </span>
           </div>
-          <div className="readout-row">
-            <span className="readout-label">Question</span>
-            <span className="readout-value">
-              {String(Math.min(qIndex + 1, total)).padStart(2, "0")}
-              <span className="readout-sep"> / </span>
-              {String(total).padStart(2, "0")}
-            </span>
+          <div className="comp-bars">
+            {COMP_ORDER.map((c) => (
+              <CompBar key={c} id={c} avg={results.avg[c]} />
+            ))}
           </div>
+        </div>
+
+        <div className="dashboard-progress">
+          <span className="dashboard-progress-label">
+            Q{Math.min(qIndex + 1, total)}/{total}
+          </span>
           <div className="progress-ticks">
             {segments.map((_, i) => (
               <span key={i} className={`tick${i < qIndex ? " tick-filled" : ""}`} />
             ))}
           </div>
-        </div>
-        <div className="dashboard-right">
-          {COMP_ORDER.map((c) => (
-            <Gauge key={c} id={c} avg={results.avg[c]} />
-          ))}
         </div>
       </div>
     </div>
@@ -493,29 +366,9 @@ function ScorePopup({ feedback, onContinue, isLast }) {
   );
 }
 
-function CompetencyBar({ id, avg }) {
-  const c = COMPETENCIES[id];
-  const pct = avg !== null ? Math.max((avg / 4) * 100, 3) : 0;
-  const pass = avg !== null && avg >= 3;
-  return (
-    <div className="comp-row">
-      <div className="comp-label">
-        <span>{c.icon}</span>
-        <span>{c.name}</span>
-      </div>
-      <div className="comp-track">
-        <div className="comp-fill" style={{ width: `${pct}%`, background: pass ? "var(--moss)" : "var(--ember)" }} />
-        <div className="comp-threshold" style={{ left: "75%" }} />
-      </div>
-      <span className="comp-score">{avg !== null ? avg.toFixed(1) : "—"} / 4</span>
-    </div>
-  );
-}
-
 function ResultsScreen({ answers, onRestart }) {
   const results = useMemo(() => computeResults(answers), [answers]);
   const [copied, setCopied] = useState(false);
-  const summaryRef = useRef(null);
 
   const copySummary = () => {
     const lines = [
@@ -537,32 +390,18 @@ function ResultsScreen({ answers, onRestart }) {
   };
 
   return (
-    <div className="screen results" ref={summaryRef}>
+    <div className="screen results">
       <span className="eyebrow">your gate reading · L{LEVEL.id}</span>
-      <div className="results-hero">
-        <div className="gate-card">
-          <Gate avg={results.avg} size={260} />
-        </div>
-        <div className="results-hero-text">
-          <span className="results-standing-label">{results.cleared ? "gate cleared" : "gate not yet cleared"}</span>
-          <h1 className="results-standing" style={{ color: results.cleared ? "var(--moss)" : "var(--paper)" }}>
-            {results.total.toFixed(1)} / {LEVEL.threshold}
-          </h1>
-          <p className="results-tagline">
-            {results.cleared
-              ? results.strongSignal
-                ? `Strong signal — well clear of the L${LEVEL.id} bar. Ready to start Game 2 (L1).`
-                : `Cleared the L${LEVEL.id} bar. Ready to start Game 2 (L1) when it's built.`
-              : `Below the pass line for one or more competencies. That's useful data — see the breakdown below.`}
-          </p>
-        </div>
-      </div>
-
-      <div className="level-card">
-        {COMP_ORDER.map((c) => (
-          <CompetencyBar key={c} id={c} avg={results.avg[c]} />
-        ))}
-      </div>
+      <h1 className="results-verdict" style={{ color: results.cleared ? "var(--moss)" : "var(--paper)" }}>
+        {results.cleared ? "Gate Cleared" : "Gate Not Yet Cleared"}
+      </h1>
+      <p className="results-tagline">
+        {results.cleared
+          ? results.strongSignal
+            ? `Strong signal — well clear of the L${LEVEL.id} bar. Ready to start Game 2 (L1).`
+            : `Cleared the L${LEVEL.id} bar. Ready to start Game 2 (L1) when it's built.`
+          : `Below the pass line for one or more competencies — see the breakdown above.`}
+      </p>
 
       {results.redFlagsHit.length > 0 && (
         <div className="redflag-panel">
@@ -667,13 +506,11 @@ export default function FacilitatorMatrixGameL0() {
         .dashboard-inner {
           max-width: 820px;
           margin: 0 auto;
-          padding: 22px 28px 24px;
-          display: grid;
-          grid-template-columns: 1fr auto;
-          align-items: center;
-          gap: 24px;
+          padding: 16px 28px 12px;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
         }
-        .dashboard-left { display: flex; flex-direction: column; gap: 10px; min-width: 0; color: var(--dash-text); }
         .brand { display: flex; align-items: center; gap: 8px; }
         .brand-mark { color: var(--moss); font-size: 15px; }
         .brand-name {
@@ -683,48 +520,46 @@ export default function FacilitatorMatrixGameL0() {
           text-transform: uppercase;
           color: var(--dash-muted);
         }
-        .readout-row { display: flex; align-items: baseline; gap: 8px; }
-        .readout-label {
+
+        .dashboard-main { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 28px; }
+        .dashboard-score-block { display: flex; flex-direction: column; gap: 2px; }
+        .dashboard-score-label {
           font-family: 'IBM Plex Mono', monospace;
-          font-size: 11px;
+          font-size: 10.5px;
           letter-spacing: 0.1em;
           text-transform: uppercase;
           color: var(--dash-muted);
         }
-        .readout-value {
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: 28px;
+        .dashboard-score-value {
+          font-family: 'Fraunces', serif;
+          font-size: 32px;
           font-weight: 600;
           color: var(--dash-text);
-          letter-spacing: 0.02em;
-          text-shadow: 0 0 18px rgba(46, 158, 99, 0.35);
+          line-height: 1;
         }
-        .readout-sep { color: var(--dash-muted); font-weight: 400; }
-        .progress-ticks { display: flex; gap: 5px; }
-        .tick { width: 20px; height: 6px; border-radius: 3px; background: var(--dash-line); }
-        .tick-filled { background: var(--moss); box-shadow: 0 0 8px rgba(46, 158, 99, 0.65); }
+        .dashboard-score-sep { color: var(--dash-muted); font-weight: 400; font-size: 0.6em; }
 
-        .dashboard-right { display: flex; gap: 16px; }
-        .gauge { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-        .gauge-track { stroke: var(--dash-line); stroke-width: 8; stroke-linecap: round; }
-        .gauge-value { stroke-width: 8; stroke-linecap: round; transition: stroke 0.3s ease; }
-        .gauge-passtick { stroke: var(--dash-muted); stroke-width: 2; }
-        .gauge-needle { stroke: var(--dash-text); stroke-width: 2; stroke-linecap: round; }
-        .gauge-hub { fill: var(--dash-text); }
-        .gauge-readout { display: flex; align-items: center; gap: 5px; font-family: 'IBM Plex Mono', monospace; }
-        .gauge-icon { font-size: 13px; }
-        .gauge-value-text { font-size: 13px; color: var(--dash-text); font-weight: 600; }
-
-        .gate-label { font-size: 16px; fill: var(--paper); }
-        .gate-card {
-          background: var(--surface);
-          border: 1px solid var(--line);
-          border-radius: 20px;
-          padding: 20px 24px;
-          box-shadow: 0 10px 26px rgba(60, 45, 20, 0.06);
+        .comp-bars { display: grid; grid-template-columns: 1fr 1fr; gap: 7px 24px; }
+        .comp-bar { display: flex; align-items: center; gap: 8px; }
+        .comp-bar-icon { font-size: 13px; width: 15px; text-align: center; flex-shrink: 0; }
+        .comp-bar-name { font-size: 11px; line-height: 1.15; color: var(--dash-muted); width: 100px; flex-shrink: 0; }
+        .comp-bar-track { position: relative; flex: 1; height: 6px; background: var(--dash-line); border-radius: 3px; }
+        .comp-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease, background 0.3s ease; }
+        .comp-bar-threshold { position: absolute; top: -2px; left: 75%; width: 2px; height: 10px; background: var(--dash-muted); opacity: 0.7; }
+        .comp-bar-value {
+          font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: var(--dash-text);
+          width: 22px; text-align: right; flex-shrink: 0;
         }
 
-        .screen { max-width: 680px; margin: 0 auto; padding: 56px 24px 80px; animation: rise 0.5s ease both; }
+        .dashboard-progress { display: flex; align-items: center; gap: 8px; }
+        .dashboard-progress-label {
+          font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--dash-muted); letter-spacing: 0.04em;
+        }
+        .progress-ticks { display: flex; gap: 4px; flex: 1; }
+        .tick { width: 18px; height: 4px; border-radius: 2px; background: var(--dash-line); }
+        .tick-filled { background: var(--moss); box-shadow: 0 0 6px rgba(46, 158, 99, 0.65); }
+
+        .screen { max-width: 680px; margin: 0 auto; padding: 40px 24px 56px; animation: rise 0.5s ease both; }
         @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @media (prefers-reduced-motion: reduce) { .screen { animation: none; } }
 
@@ -750,10 +585,10 @@ export default function FacilitatorMatrixGameL0() {
           font-weight: 600;
           margin: 14px 0 10px;
         }
-        .intro-tagline { font-family: 'Fraunces', serif; font-style: italic; font-size: 17px; color: var(--moss); margin-bottom: 20px; }
-        .intro-body { font-size: 15.5px; line-height: 1.7; color: var(--paper-soft); max-width: 560px; margin-bottom: 32px; }
+        .intro-tagline { font-family: 'Fraunces', serif; font-style: italic; font-size: 17px; color: var(--moss); margin-bottom: 18px; }
+        .intro-body { font-size: 15.5px; line-height: 1.7; color: var(--paper-soft); max-width: 560px; margin-bottom: 24px; }
 
-        .comp-legend { display: flex; flex-direction: column; gap: 16px; margin-bottom: 32px; }
+        .comp-legend { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
         .comp-legend-item { display: flex; gap: 12px; align-items: flex-start; }
         .comp-legend-icon { font-size: 18px; margin-top: 1px; }
         .comp-legend-name { font-weight: 600; font-size: 14px; margin-bottom: 2px; }
@@ -764,7 +599,7 @@ export default function FacilitatorMatrixGameL0() {
           color: var(--muted);
           border-left: 2px solid var(--moss);
           padding-left: 14px;
-          margin-bottom: 32px;
+          margin-bottom: 24px;
           max-width: 480px;
           line-height: 1.6;
         }
@@ -850,22 +685,8 @@ export default function FacilitatorMatrixGameL0() {
         }
         .option-text { font-size: 14.5px; line-height: 1.55; }
 
-        .results-hero { display: flex; align-items: center; gap: 32px; margin: 14px 0 36px; flex-wrap: wrap; }
-        .results-standing-label {
-          font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em;
-          text-transform: uppercase; color: var(--muted);
-        }
-        .results-standing { font-family: 'Fraunces', serif; font-size: 40px; font-weight: 600; margin: 6px 0 10px; }
-        .results-tagline { color: var(--paper-soft); font-size: 14.5px; line-height: 1.6; max-width: 340px; }
-
-        .level-card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px 22px; margin-bottom: 28px; }
-        .comp-row { display: grid; grid-template-columns: 190px 1fr 52px; align-items: center; gap: 12px; margin-bottom: 12px; }
-        .comp-row:last-child { margin-bottom: 0; }
-        .comp-label { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--paper-soft); }
-        .comp-track { position: relative; height: 6px; background: var(--surface-2); border-radius: 3px; }
-        .comp-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
-        .comp-threshold { position: absolute; top: -2px; width: 2px; height: 10px; background: var(--muted); opacity: 0.6; }
-        .comp-score { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); text-align: right; }
+        .results-verdict { font-family: 'Fraunces', serif; font-size: 34px; font-weight: 600; margin: 10px 0 12px; }
+        .results-tagline { color: var(--paper-soft); font-size: 15px; line-height: 1.6; max-width: 480px; margin-bottom: 28px; }
 
         .redflag-panel {
           background: rgba(225,87,79,0.07); border: 1px solid rgba(225,87,79,0.28);
@@ -884,13 +705,10 @@ export default function FacilitatorMatrixGameL0() {
         .btn-secondary:hover { border-color: var(--paper); }
 
         @media (max-width: 640px) {
-          .dashboard-inner { grid-template-columns: 1fr; }
-          .dashboard-right { justify-content: space-between; gap: 10px; }
-          .gauge svg { width: 56px; height: 56px; }
+          .dashboard-main { grid-template-columns: 1fr; gap: 10px; }
+          .comp-bars { grid-template-columns: 1fr; gap: 6px; }
           .intro-title { font-size: 34px; }
           .q-title { font-size: 24px; }
-          .results-hero { flex-direction: column; align-items: flex-start; }
-          .comp-row { grid-template-columns: 140px 1fr 40px; }
         }
       `}</style>
 
