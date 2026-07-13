@@ -100,8 +100,8 @@ const QUESTIONS = [
       },
       {
         text: "After a brief pause, rephrase the question and offer a short example of your own to open the door.",
-        scores: [3, 3],
-        why: ["Actively re-frames the question instead of waiting it out.", "A brief pause first keeps the room from feeling rushed."],
+        scores: [3, 2],
+        why: ["Actively re-frames the question instead of waiting it out.", "Rephrasing this quickly cuts the pause a little short for the room."],
       },
       {
         text: "Assume the question was unclear, move past it, and go straight to the next agenda item.",
@@ -128,8 +128,8 @@ const QUESTIONS = [
       },
       {
         text: "Name what you're noticing, invite each of them to share briefly, then steer back toward the group's shared goal.",
-        scores: [3, 3],
-        why: ["Time-boxed, so the agenda only slips a little.", "Engages with the conflict directly instead of skipping past it."],
+        scores: [2, 3],
+        why: ["Still costs a real chunk of the agenda to talk it through.", "Engages with the conflict directly instead of skipping past it."],
       },
       {
         text: "Pause the session and go find the program lead to weigh in on what to do.",
@@ -184,8 +184,8 @@ const QUESTIONS = [
       },
       {
         text: "Decide which activity matters most, shorten or cut the other, and say so transparently to the group.",
-        scores: [3, 3],
-        why: ["A deliberate cut keeps things close to on-time.", "Naming the change keeps the room steady through it."],
+        scores: [3, 2],
+        why: ["A deliberate cut keeps things close to on-time.", "The cut still unsettles the room a little, even when explained."],
       },
       {
         text: "Try to move through both activities as briefly as possible so everything is technically covered.",
@@ -212,8 +212,8 @@ const QUESTIONS = [
       },
       {
         text: "Go over, check what they understood, and adjust the activity to fit what's already happened.",
-        scores: [3, 3],
-        why: ["A targeted read of what actually went wrong.", "Tailors the fix so their output still lines up."],
+        scores: [2, 3],
+        why: ["Takes a moment away from the rest of the room to work this out.", "Tailors the fix so their output still lines up."],
       },
       {
         text: "Note it, but wait to see if they realize and self-correct before the activity ends.",
@@ -268,8 +268,8 @@ const QUESTIONS = [
       },
       {
         text: "Name the dip lightly, insert a short energizer, then return to the plan.",
-        scores: [3, 3],
-        why: ["A small, deliberate read-and-adjust on the room's energy.", "The plan's structure holds, just with a short detour."],
+        scores: [3, 2],
+        why: ["A small, deliberate read-and-adjust on the room's energy.", "The short detour still breaks the plan's rhythm a little."],
       },
       {
         text: "Speed up delivery to get through the remaining content faster.",
@@ -453,24 +453,41 @@ function IntroScreen({ onStart }) {
   );
 }
 
+function shuffledIndices(length) {
+  const arr = Array.from({ length }, (_, i) => i);
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
 function QuestionScreen({ q, qIndex, total, onAnswer, animKey, selectedOption }) {
+  // Options are shown in a fresh random order each time this question is displayed,
+  // but onAnswer is always called with the option's original index so scoring,
+  // the popup, and the results breakdown can keep indexing into q.options unchanged.
+  const order = useMemo(() => shuffledIndices(q.options.length), [q]);
+
   return (
     <div className="screen question" key={animKey}>
       <span className="q-tag">scenario {qIndex + 1}</span>
       <h2 className="q-title">{q.title}</h2>
       <p className="q-text">{q.text}</p>
       <div className="options">
-        {q.options.map((opt, i) => (
-          <button
-            className={`option-card${selectedOption === i ? " option-card-selected" : ""}`}
-            key={i}
-            onClick={() => onAnswer(i)}
-            disabled={selectedOption !== null}
-          >
-            <span className="option-letter">{String.fromCharCode(65 + i)}</span>
-            <span className="option-text">{opt.text}</span>
-          </button>
-        ))}
+        {order.map((origIdx, pos) => {
+          const opt = q.options[origIdx];
+          return (
+            <button
+              className={`option-card${selectedOption === origIdx ? " option-card-selected" : ""}`}
+              key={origIdx}
+              onClick={() => onAnswer(origIdx)}
+              disabled={selectedOption !== null}
+            >
+              <span className="option-letter">{String.fromCharCode(65 + pos)}</span>
+              <span className="option-text">{opt.text}</span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
