@@ -1,0 +1,132 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Shared taxonomy of what a scenario option can score against.
+// Small, stable, rarely edited by the admin.
+model Competency {
+  id         String   @id @default(cuid())
+  key        String   @unique // e.g. "execution_discipline" - stable identifier used by the scoring engine
+  name       String
+  icon       String
+  definition String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  optionScores ScenarioOptionScore[]
+}
+
+// A readiness tier (L0, L1, L2...). Holds the copy and pass rule for that tier.
+model Level {
+  id            String   @id @default(cuid())
+  key           String   @unique // "L0"
+  name          String
+  tagline       String
+  intro         String
+  threshold     Int      @default(12)
+  nextLevelName String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  games Game[]
+}
+
+enum ScenarioStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+// The content bank. Scenarios are authored once and reused across many games.
+model Scenario {
+  id               String         @id @default(cuid())
+  title            String
+  prompt           String
+  occasion         String? // free-tag e.g. "onboarding", "refresher", "conflict-focus"
+  difficulty       String? // "easy" | "medium" | "hard"
+  suggestedLevelId String?
+  status           ScenarioStatus @default(DRAFT)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  options   ScenarioOption[]
+  gameLinks GameScenario[]
+}
+
+model ScenarioOption {
+  id          String   @id @default(cuid())
+  scenarioId  String
+  scenario    Scenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  text        String
+  order       Int // author-defined order in the editor; runtime shuffles display order separately
+  isRedFlag   Boolean  @default(false)
+  redFlagNote String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  scores ScenarioOptionScore[]
+}
+
+// One row per (option, competency) pair - an option scores against exactly 2 competencies in the current design.
+model ScenarioOptionScore {
+  id           String         @id @default(cuid())
+  optionId     String
+  option       ScenarioOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  competencyId String
+  competency   Competency     @relation(fields: [competencyId], references: [id])
+  score        Int // 1-4
+  why          String // one-line rationale shown in the post-answer popup
+
+  @@unique([optionId, competencyId])
+}
+
+enum GameStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+// A named, publishable bundle: a Level + Occasion + a curated set of Scenarios.
+// This is what the admin assembles and what the player fetches at runtime.
+model Game {
+  id        String     @id @default(cuid())
+  slug      String     @unique
+  name      String
+  levelId   String
+  level     Level      @relation(fields: [levelId], references: [id])
+  occasion  String?
+  status    GameStatus @default(DRAFT)
+  version   Int        @default(1)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  scenarios GameScenario[]
+  sessions  GameSession[]
+}
+
+model GameScenario {
+  id         String   @id @default(cuid())
+  gameId     String
+  game       Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  scenarioId String
+  scenario   Scenario @relation(fields: [scenarioId], references: [id])
+  order      Int
+
+  @@unique([gameId, scenarioId])
+}
+
+// One row per completed (or in-progress) play-through, for basic curation analytics.
+model GameSession {
+  id          String    @id @default(cuid())
+  gameId      String
+  game        Game      @relation(fields: [gameId], references: [id])
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+  totalScore  Float?
+  cleared     Boolean?
+  answers     Json? // [{ scenarioId, optionId }] - raw log for admin analytics
+}
