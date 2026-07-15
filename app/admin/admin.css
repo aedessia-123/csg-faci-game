@@ -1,0 +1,91 @@
+.admin {
+  --ink: #2E2A22;
+  --muted: #6B6152;
+  --line: #E4D9C8;
+  --bg: #FFFCF6;
+  --surface: #FFFFFF;
+  --moss: #2E9E63;
+  --ember: #F2A93B;
+  --rose: #C0392B;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+  min-height: 100vh;
+}
+.admin * { box-sizing: border-box; }
+.admin a { color: inherit; text-decoration: none; }
+
+.admin-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+  flex-wrap: wrap;
+}
+.admin-nav-brand { font-weight: 700; margin-right: 16px; }
+.admin-nav a {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.admin-nav a:hover, .admin-nav a.active { background: #F2E4CE; color: var(--ink); }
+
+.admin-main { max-width: 960px; margin: 0 auto; padding: 32px 24px 80px; }
+
+.admin-h1 { font-size: 24px; font-weight: 700; margin: 0 0 4px; }
+.admin-sub { color: var(--muted); font-size: 14px; margin: 0 0 24px; }
+
+.admin-row-between { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+
+.admin-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--moss); color: #fff; border: none;
+  padding: 9px 16px; border-radius: 6px; font-size: 14px; font-weight: 600;
+  cursor: pointer;
+}
+.admin-btn:hover { opacity: 0.92; }
+.admin-btn.secondary { background: var(--surface); color: var(--ink); border: 1px solid var(--line); }
+.admin-btn.danger { background: var(--rose); }
+.admin-btn:disabled { opacity: 0.5; cursor: default; }
+
+.admin-table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.admin-table th, .admin-table td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); font-size: 14px; }
+.admin-table th { background: #FAF3E6; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+.admin-table tr:last-child td { border-bottom: none; }
+.admin-table tr:hover td { background: #FDF9F1; }
+
+.admin-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+.admin-badge.published { background: rgba(46,158,99,0.14); color: var(--moss); }
+.admin-badge.draft { background: rgba(242,169,59,0.16); color: #B87A15; }
+.admin-badge.archived { background: #EEE; color: var(--muted); }
+
+.admin-card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+
+.admin-field { margin-bottom: 16px; }
+.admin-field label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+.admin-field input, .admin-field textarea, .admin-field select {
+  width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px;
+  font-size: 14px; font-family: inherit; background: #fff; color: var(--ink);
+}
+.admin-field textarea { min-height: 70px; resize: vertical; }
+.admin-field-hint { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.admin-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+.admin-option-card { border: 1px solid var(--line); border-radius: 8px; padding: 16px; margin-bottom: 12px; background: #FEFCF8; }
+.admin-option-card-title { font-weight: 700; margin-bottom: 10px; font-size: 13px; }
+.admin-option-score-row { display: grid; grid-template-columns: 1fr 3fr; gap: 10px; align-items: start; margin-bottom: 10px; }
+
+.admin-checkbox-row { display: flex; align-items: center; gap: 8px; }
+.admin-checkbox-row input { width: auto; }
+
+.admin-error { background: rgba(192,57,43,0.08); border: 1px solid rgba(192,57,43,0.3); color: var(--rose); padding: 10px 14px; border-radius: 6px; font-size: 13px; margin-bottom: 16px; }
+.admin-success { background: rgba(46,158,99,0.08); border: 1px solid rgba(46,158,99,0.3); color: var(--moss); padding: 10px 14px; border-radius: 6px; font-size: 13px; margin-bottom: 16px; }
+
+.admin-scenario-picker { border: 1px solid var(--line); border-radius: 8px; max-height: 420px; overflow-y: auto; background: var(--surface); }
+.admin-scenario-picker-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+.admin-scenario-picker-item:last-child { border-bottom: none; }
+.admin-scenario-picker-order { font-family: monospace; font-size: 12px; color: var(--muted); width: 20px; }
+.admin-empty { color: var(--muted); font-size: 14px; padding: 24px; text-align: center; }
