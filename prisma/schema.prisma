@@ -17,7 +17,8 @@ model Competency {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  optionScores ScenarioOptionScore[]
+  scenariosAsA Scenario[] @relation("ScenarioCompetencyA")
+  scenariosAsB Scenario[] @relation("ScenarioCompetencyB")
 }
 
 // A readiness tier (L0, L1, L2...). Holds the copy and pass rule for that tier.
@@ -42,6 +43,8 @@ enum ScenarioStatus {
 }
 
 // The content bank. Scenarios are authored once and reused across many games.
+// Every scenario tests exactly 2 competencies (A and B) - a fixed-arity design
+// choice, not a limitation, so it's modeled directly rather than via a join table.
 model Scenario {
   id               String         @id @default(cuid())
   title            String
@@ -50,6 +53,10 @@ model Scenario {
   difficulty       String? // "easy" | "medium" | "hard"
   suggestedLevelId String?
   status           ScenarioStatus @default(DRAFT)
+  competencyAId    String
+  competencyA      Competency     @relation("ScenarioCompetencyA", fields: [competencyAId], references: [id])
+  competencyBId    String
+  competencyB      Competency     @relation("ScenarioCompetencyB", fields: [competencyBId], references: [id])
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
 
@@ -57,31 +64,22 @@ model Scenario {
   gameLinks GameScenario[]
 }
 
+// Exactly 4 per scenario by convention (enforced in the admin UI, not the DB).
+// scoreA/whyA score+explain against the scenario's competencyA, scoreB/whyB against competencyB.
 model ScenarioOption {
   id          String   @id @default(cuid())
   scenarioId  String
   scenario    Scenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
   text        String
   order       Int // author-defined order in the editor; runtime shuffles display order separately
+  scoreA      Int // 1-4 against the scenario's competencyA
+  whyA        String
+  scoreB      Int // 1-4 against the scenario's competencyB
+  whyB        String
   isRedFlag   Boolean  @default(false)
   redFlagNote String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  scores ScenarioOptionScore[]
-}
-
-// One row per (option, competency) pair - an option scores against exactly 2 competencies in the current design.
-model ScenarioOptionScore {
-  id           String         @id @default(cuid())
-  optionId     String
-  option       ScenarioOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
-  competencyId String
-  competency   Competency     @relation(fields: [competencyId], references: [id])
-  score        Int // 1-4
-  why          String // one-line rationale shown in the post-answer popup
-
-  @@unique([optionId, competencyId])
 }
 
 enum GameStatus {
