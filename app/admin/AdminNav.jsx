@@ -10,6 +10,13 @@ const LINKS = [
 
 export default function AdminNav() {
   const pathname = usePathname();
+  if (pathname === "/admin/login") return null;
+
+  const logout = async () => {
+    await fetch("/api/admin/logout", { method: "POST" });
+    window.location.href = "/admin/login";
+  };
+
   return (
     <nav className="admin-nav">
       <span className="admin-nav-brand">Facilitator Matrix Admin</span>
@@ -18,6 +25,14 @@ export default function AdminNav() {
           {link.label}
         </a>
       ))}
+      <button
+        onClick={logout}
+        className="admin-btn secondary"
+        style={{ marginLeft: "auto" }}
+        type="button"
+      >
+        Log out
+      </button>
     </nav>
   );
 }
