@@ -96,3 +96,20 @@
 .admin-scenario-picker-item:last-child { border-bottom: none; }
 .admin-scenario-picker-order { font-family: monospace; font-size: 12px; color: var(--muted); width: 20px; }
 .admin-empty { color: var(--muted); font-size: 14px; padding: 24px; text-align: center; }
+
+.admin-guide {
+  background: #F2E9D8; border: 1px solid var(--line); border-radius: 8px;
+  padding: 14px 18px; margin-bottom: 20px; font-size: 13.5px;
+}
+.admin-guide summary { cursor: pointer; font-weight: 600; }
+.admin-guide ul { margin: 12px 0 0; padding-left: 18px; }
+.admin-guide li { margin-bottom: 8px; line-height: 1.5; color: var(--ink); }
+.admin-guide li:last-child { margin-bottom: 0; }
+
+.admin-guide-warnings {
+  background: rgba(242,169,59,0.1); border: 1px solid rgba(242,169,59,0.35);
+  border-radius: 8px; padding: 14px 18px; margin-bottom: 16px;
+}
+.admin-guide-warnings ul { margin: 0; padding-left: 18px; }
+.admin-guide-warnings li { font-size: 13px; line-height: 1.5; color: var(--ink); margin-bottom: 4px; }
+.admin-guide-warnings li:last-child { margin-bottom: 0; }

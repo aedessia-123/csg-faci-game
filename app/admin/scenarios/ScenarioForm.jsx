@@ -1,7 +1,43 @@
 'use client';
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const EMPTY_OPTION = { text: "", scoreA: 3, whyA: "", scoreB: 3, whyB: "", isRedFlag: false, redFlagNote: "" };
+
+const LETTER = (i) => String.fromCharCode(65 + i);
+
+// Checks the 4 options against the trade-off rubric and returns plain-language
+// warnings. These are hints, not hard validation - a scenario can still be
+// saved even if it trips one of these, since there may be a deliberate reason.
+function getScoreWarnings(options) {
+  const warnings = [];
+
+  options.forEach((opt, i) => {
+    const a = Number(opt.scoreA);
+    const b = Number(opt.scoreB);
+    if (a === 4 && b === 4) {
+      warnings.push(`Option ${LETTER(i)} scores 4/4 on both competencies — no trade-off, so it's a risk-free "always pick this" choice.`);
+    }
+    if (a === 1 && b === 1 && !opt.isRedFlag) {
+      warnings.push(`Option ${LETTER(i)} scores 1/1 but isn't flagged as a red flag — consider whether it should be.`);
+    }
+  });
+
+  for (let i = 0; i < options.length; i++) {
+    for (let j = i + 1; j < options.length; j++) {
+      const a1 = Number(options[i].scoreA), b1 = Number(options[i].scoreB);
+      const a2 = Number(options[j].scoreA), b2 = Number(options[j].scoreB);
+      if (a1 === a2 && b1 === b2) {
+        warnings.push(`Options ${LETTER(i)} and ${LETTER(j)} have identical scores (${a1}/${b1}) — consider varying them so the choices are more distinct.`);
+      }
+    }
+  }
+
+  if (!options.some((o) => o.isRedFlag)) {
+    warnings.push("No option is flagged as a red flag in this scenario — fine if intentional, but most scenarios pair one clearly weaker choice.");
+  }
+
+  return warnings;
+}
 
 function emptyScenario() {
   return {
@@ -67,6 +103,8 @@ export default function ScenarioForm({ scenarioId }) {
     setForm({ ...form, options });
   };
 
+  const scoreWarnings = useMemo(() => getScoreWarnings(form.options), [form.options]);
+
   const submit = async (e) => {
     e.preventDefault();
     setError("");
@@ -95,6 +133,18 @@ export default function ScenarioForm({ scenarioId }) {
   return (
     <form onSubmit={submit}>
       {error && <div className="admin-error">{error}</div>}
+
+      <details className="admin-guide">
+        <summary>How scoring works — read before writing options</summary>
+        <ul>
+          <li>Every scenario tests exactly the 2 competencies picked below (A and B). Each of the 4 options should be a genuine trade-off, not one "correct" answer.</li>
+          <li><strong>Two options should lean hard into one competency at the cost of the other</strong> — e.g. 4 on A / 2 on B, and the reverse (2 on A / 4 on B).</li>
+          <li><strong>One option should be a middle path</strong> — solid on both but not maxed out (e.g. 3/3, or 3/2 for variety). Vary this across different scenarios — don't always use the same pair — so there's no single "always safe" pattern a player can learn to spot.</li>
+          <li><strong>One option should reflect a real but weaker pattern</strong> — low on both (e.g. 1/1 or 2/1) — usually the one worth flagging as a red flag. It should still read as something a real person might plausibly do, not an obviously bad strawman.</li>
+          <li><strong>Avoid 4/4</strong> — a risk-free, no-downside option undermines the "no single right answer" design.</li>
+          <li><strong>Each "why" is one short, neutral, concrete sentence</strong> about the actual consequence — e.g. "Cuts them off before their point is fully out," not "This is rude."</li>
+        </ul>
+      </details>
 
       <div className="admin-card">
         <div className="admin-field">
@@ -160,6 +210,17 @@ export default function ScenarioForm({ scenarioId }) {
       <p className="admin-sub" style={{ marginTop: 0 }}>
         Four options. Each one scores against both Competency A ({compA ? compA.name : "?"}) and Competency B ({compB ? compB.name : "?"}).
       </p>
+
+      {scoreWarnings.length > 0 && (
+        <div className="admin-guide-warnings">
+          <div className="admin-option-card-title" style={{ marginBottom: 6 }}>Trade-off check</div>
+          <ul>
+            {scoreWarnings.map((w, i) => (
+              <li key={i}>{w}</li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {form.options.map((opt, i) => (
         <div className="admin-option-card" key={i}>
